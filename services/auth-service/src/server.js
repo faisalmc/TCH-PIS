@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const connectDB = require('./db');
+const connectDB = require('../../../shared/db');
 const authRoutes = require('./routes/authRoutes');
-require('dotenv').config();
+require('dotenv').config({ path: '../../.env' });
 
 const app = express();
 
