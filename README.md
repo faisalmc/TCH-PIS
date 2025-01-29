@@ -23,3 +23,6 @@ MongoDB role: atlasAdmin@admin
 ### CLI connection option:
 mongosh "mongodb+srv://patient-info-system.qj5ku.mongodb.net/" --apiVersion 1 --username fmc4000
 
+# Updated the Project Structure to Support the Microservice Architecture 
+https://docs.google.com/document/d/1WXTftHd8eRMyJoweJcIiFtPEZFpEXA3xQIHS522bpY8/edit?usp=sharing
+
