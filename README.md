@@ -26,3 +26,6 @@ mongosh "mongodb+srv://patient-info-system.qj5ku.mongodb.net/" --apiVersion 1 --
 # Updated the Project Structure to Support the Microservice Architecture 
 https://docs.google.com/document/d/1WXTftHd8eRMyJoweJcIiFtPEZFpEXA3xQIHS522bpY8/edit?usp=sharing
 
+# Added the Patient Registration Module 
+https://docs.google.com/document/d/1Eplr3Ga12MK7pn_XUe9iaoTTO3Pi546ZVR1pmIzu10g/edit?usp=sharing
+
