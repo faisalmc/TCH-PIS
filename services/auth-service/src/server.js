@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const connectDB = require('../../../shared/db');
 const authRoutes = require('./routes/authRoutes');
-require('dotenv').config({ path: '../../.env' });
+require('dotenv').config({ path: '../../../.env' });
 
 const app = express();
 
