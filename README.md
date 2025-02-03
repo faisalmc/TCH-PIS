@@ -29,3 +29,6 @@ https://docs.google.com/document/d/1WXTftHd8eRMyJoweJcIiFtPEZFpEXA3xQIHS522bpY8/
 # Added the Patient Registration Module 
 https://docs.google.com/document/d/1Eplr3Ga12MK7pn_XUe9iaoTTO3Pi546ZVR1pmIzu10g/edit?usp=sharing
 
+# Patient Treatment Module
+https://docs.google.com/document/d/1rZOEZBXTrJSjJO3mEoTre26Fu_xNd9dq2HL7tzPbH6E/edit?usp=sharing
+
