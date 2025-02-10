@@ -1,30 +1,62 @@
 const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const connectDB = require('../../shared/db');  // Use shared database connection
-const treatmentRoutes = require('./routes/treatmentRoutes');  // Import API routes
-
-// dotenv.config({ path: '../../.env' });  // Load shared environment variables
-dotenv.config({ path: './.env' });  // Load local .env
-dotenv.config({ path: '../../.env' });  // Load shared .env as fallback
+const mongoose = require('mongoose');
+const connectDB = require('../../shared/db');
+const treatmentRoutes = require('./routes/treatmentRoutes');
+require('dotenv').config({ path: '../../.env' });
 
 const app = express();
-app.use(express.json());  // Allows JSON request bodies
-app.use(cors());  // Enables cross-origin requests
 
-connectDB();  // Connect to MongoDB using shared db.js
+// Middleware
+app.use(express.json());
 
-app.use('/treatment', treatmentRoutes);  // Register treatment API routes
+// Connect to MongoDB
+connectDB();
 
+// ✅ Mount Treatment Routes
+app.use('/api', treatmentRoutes);
+
+// ✅ Debug: Log Registered Routes
+const listRoutes = (app) => {
+    console.log("\n📌 Registered Routes:");
+    app._router.stack.forEach((middleware) => {
+        if (middleware.route) {
+            console.log(`✅ ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+        } else if (middleware.name === 'router') {
+            middleware.handle.stack.forEach((handler) => {
+                if (handler.route) {
+                    console.log(`✅ ${Object.keys(handler.route.methods).join(', ').toUpperCase()} /api${handler.route.path}`);
+                }
+            });
+        }
+    });
+};
+
+// Start the server
 const PORT = process.env.PORT || 3002;
-app.listen(PORT, () => console.log(`Patient Treatment Service running on port ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Patient Treatment Service running on port ${PORT}`);
+    listRoutes(app); // ✅ Log routes after server starts
+});
 
-// 3.1
-// Adding model/Treatment.js to store diagnosis, medications, vitals.
-// Linked patientID and doctorID to Patient and User
 
-const Treatment = require('./models/Treatment');
 
-// 3.2
-// below is duplicate, so ignore
+// const express = require('express');
+// const mongoose = require('mongoose');
+// const connectDB = require('../../shared/db');
 // const treatmentRoutes = require('./routes/treatmentRoutes');
+// require('dotenv').config({ path: '../../.env' });
+
+// const app = express();
+
+// // Middleware
+// app.use(express.json());
+
+// // Connect to MongoDB
+// connectDB();
+
+// // ✅ Mount Treatment Routes
+// app.use('/api', treatmentRoutes);
+
+// // Start the server
+// const PORT = process.env.PORT || 3002;
+// app.listen(PORT, () => console.log(`Patient Treatment Service running on port ${PORT}`));
