@@ -16,7 +16,7 @@ exports.registerPatient = async (req, res) => {
     const newPatient = new Patient({ firstName, lastName, mobile, email });
     await newPatient.save();
 
-    res.status(201).json({ message: 'Patient registered successfully', patientId: newPatient._id });
+    res.status(201).json({ message: 'Patient registered successfully', patientId: newPatient.patientId });
   } catch (error) {
     res.status(500).json({ message: 'Error registering patient', error: error.message });
   }
@@ -32,11 +32,11 @@ exports.getAllPatients = async (req, res) => {
   }
 };
 
-// Query a patient by ID
+// Query a patient by objectId 
 exports.getPatientById = async (req, res) => {
   try {
-    const { id } = req.params;
-    const patient = await Patient.findById(id); // Fetch patient by ID from MongoDB
+    const { pid } = req.params;
+    const patient = await Patient.findOne({ patientId: pid });
 
     if (!patient) {
       return res.status(404).json({ message: 'Patient not found' });
