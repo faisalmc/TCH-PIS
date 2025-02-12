@@ -13,7 +13,7 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use('/patient', patientRoutes);
+app.use('/patients', patientRoutes);
 
 // Start the server
 const PORT = 3001;
