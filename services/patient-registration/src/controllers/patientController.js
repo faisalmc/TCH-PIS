@@ -3,7 +3,7 @@ const Patient = require('../models/Patient');
 // Register a new patient (Only for clerks)
 exports.registerPatient = async (req, res) => {
   try {
-    const { firstName, lastName, mobile, email } = req.body;
+    const { firstName, lastName, mobile, email, diseaseHistory } = req.body;
 
     // Check if patient already exists
     const existingPatient = await Patient.findOne({ mobile });
@@ -13,7 +13,7 @@ exports.registerPatient = async (req, res) => {
     }
 
     // Create and save new patient
-    const newPatient = new Patient({ firstName, lastName, mobile, email });
+    const newPatient = new Patient({ firstName, lastName, mobile, email, diseaseHistory });
     await newPatient.save();
 
     res.status(201).json({ message: 'Patient registered successfully', patientId: newPatient.patientId });
