@@ -1,8 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const connectDB = require('../../shared/db');
+const connectDB = require('../../../shared/db');
 const treatmentRoutes = require('./routes/treatmentRoutes');
-require('dotenv').config({ path: '../../.env' });
+// require('dotenv').config({ path: '../../../.env' });
+// require('dotenv').config({ path: '../../../.env' });
+require('dotenv').config({ path: __dirname + '/../../../.env' });
+
+console.log(`🔍 DEBUG: Loaded PORT from .env: ${process.env.PORT}`);
+console.log(`🔍 DEBUG: Loaded Treatment Service Port: ${process.env.TREATMENT_SERVICE_PORT}`);
 
 const app = express();
 
@@ -32,12 +37,17 @@ const listRoutes = (app) => {
 };
 
 // Start the server
-const PORT = process.env.PORT || 3002;
+// const PORT = process.env.PORT || 3002;
+// app.listen(PORT, () => {
+//     console.log(`Patient Treatment Service running on port ${PORT}`);
+//     listRoutes(app); // ✅ Log routes after server starts
+// });
+
+const PORT = process.env.SERVICE_NAME === "treatment" ? 3002 : process.env.PORT || 3002;
+
 app.listen(PORT, () => {
     console.log(`Patient Treatment Service running on port ${PORT}`);
-    listRoutes(app); // ✅ Log routes after server starts
 });
-
 
 
 // const express = require('express');
