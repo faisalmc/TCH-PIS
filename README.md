@@ -1,4 +1,4 @@
-# Tertiary Care Hospital (TCH) - Patient Information System
+# Tertiary Care Hospital (TCH) - Patient Information System (PIS)
 F21AO DevOps project
 
 # Jira Project 
