@@ -1,5 +1,5 @@
-# f21ao
-DevOps project
+# Tertiary Care Hospital (TCH) - Patient Information System
+F21AO DevOps project
 
 # Jira Project 
 https://hw-f21ao.atlassian.net/jira/your-work
