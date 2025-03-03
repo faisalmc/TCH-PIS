@@ -7,7 +7,8 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npm run start --workspace=auth-service"
+    "start": "npm run start --workspace=auth-service",
+    "start-all": "node services/auth-service/src/server.js & node services/patient-registration/src/server.js & node services/patient-treatment/src/server.js"
   },
   "keywords": [],
   "author": "",
