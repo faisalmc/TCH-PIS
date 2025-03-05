@@ -299,7 +299,7 @@ it('should validate returned patient fields', async () => {
 
 });
 
-describe('Patient Controller - Get Patient By ID', () => {
+describe('Patient Controller - Get Patient By ID - UNIT TEST', () => {
   afterEach(() => {
       sinon.restore();
   });
