@@ -1,0 +1,10 @@
+{
+    "name": "patient-registration",
+    "scripts": {
+      "test": "mocha test/**/*.test.js --exit"
+    },
+    "devDependencies": {
+      "mocha": "^11.1.0",
+      "chai": "^5.1.0"
+    }
+  }

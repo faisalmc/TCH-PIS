@@ -6,15 +6,19 @@
     "services/*"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npm run start --workspace=auth-service",
-    "start-all": "node services/auth-service/src/server.js & node services/patient-registration/src/server.js & node services/patient-treatment/src/server.js"
+    "start-all": "node services/auth-service/src/server.js & node services/patient-registration/src/server.js & node services/patient-treatment/src/server.js",
+    "test": "cd services/auth-service && npm test & cd services/patient-registration && npm test & cd services/patient-treatment && npm test"
+  
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "chai": "^5.2.0",
+    "mocha": "^11.1.0",
+    "nodemon": "^3.1.9",
+    "sinon": "^19.0.2"
   },
   "description": "Monorepo for Patient Information System",
   "dependencies": {
