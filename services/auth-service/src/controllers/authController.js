@@ -7,6 +7,10 @@ exports.register= async (req, res) =>{
     try{
         const { username, password, role } = req.body;
 
+             // Check for missing required fields
+             if (!username || !password || !role) {
+              return res.status(400).json({ message: 'Missing required fields' });}
+
         // Check if user already exists
         const existingUser = await User.findOne({ username });
 
@@ -58,7 +62,8 @@ exports.login = async (req, res) =>{
         process.env.JWT_SECRET,
         { expiresIn: '1h' }
       );  
-      res.json({ token, role: user.role });
+      // Set status to 200 and send the response
+      return res.status(200).json({ token, role: user.role });
     }
     catch (error) {
         res.status(500).json({ message: 'Error logging in', error: error.message });
