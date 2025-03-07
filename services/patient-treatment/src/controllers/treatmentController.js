@@ -7,10 +7,10 @@ exports.addDiagnosis = async (req, res) => {
         const { patientID, diagnosis, medications } = req.body;
         const doctorID = req.user.userId;
 
-        console.log("🟡 Received diagnosis request for patientID:", patientID);
+        
 
         if (!patientID || !diagnosis) {
-            console.error("❌ Missing required fields");
+            
             return res.status(400).json({ message: "Error: patientID and diagnosis are required" });
         }
 
@@ -26,11 +26,11 @@ exports.addDiagnosis = async (req, res) => {
         }
 
         const savedTreatment = await treatment.save();
-        console.log("🟢 Diagnosis successfully saved/updated in MongoDB:", savedTreatment);
+        
         res.status(201).json({ message: 'Diagnosis recorded successfully', treatment: savedTreatment });
 
     } catch (error) {
-        console.error("❌ Error saving diagnosis:", error.message);
+        
         res.status(500).json({ message: 'Error recording diagnosis', error: error.message });
     }
 };
@@ -41,7 +41,7 @@ exports.updateMedications = async (req, res) => {
         const { patientID } = req.params;
         const { medications } = req.body;
 
-        console.log("🟡 Updating medications for patientID:", patientID);
+      
 
         if (!medications || !Array.isArray(medications)) {
             return res.status(400).json({ message: "Error: Medications must be an array" });
@@ -57,11 +57,11 @@ exports.updateMedications = async (req, res) => {
         treatment.medications = medications;
         await treatment.save();
 
-        console.log("🟢 Medications updated successfully:", treatment);
+        
         res.status(200).json({ message: "Medications updated successfully", treatment });
 
     } catch (error) {
-        console.error("❌ Error updating medications:", error.message);
+ 
         res.status(500).json({ message: 'Error updating medications', error: error.message });
     }
 };
@@ -71,7 +71,7 @@ exports.removeMedication = async (req, res) => {
     try {
         const { patientID, medication } = req.params;
 
-        console.log("🟡 Attempting to remove medication:", medication, "for patientID:", patientID);
+
 
         const objectIdPatientID = new mongoose.Types.ObjectId(patientID);
 
@@ -81,11 +81,11 @@ exports.removeMedication = async (req, res) => {
             return res.status(404).json({ message: "No treatment record found for this patient" });
         }
 
-        console.log("🔍 Before Deletion - Medications:", treatment.medications);
+        
 
         // 🔎 Debug: Show comparison between stored and requested medication
         treatment.medications.forEach(med => {
-            console.log(`🔎 Comparing: "${med.trim().toLowerCase()}" vs. "${medication.trim().toLowerCase()}"`);
+            
         });
 
         // ✅ Use case-insensitive, whitespace-trimmed comparison
@@ -100,11 +100,11 @@ exports.removeMedication = async (req, res) => {
         treatment.medications = updatedMedications;
         await treatment.save();
 
-        console.log("🟢 Medication removed successfully. Updated medications:", treatment.medications);
+        
         res.status(200).json({ message: "Medication removed successfully", treatment });
 
     } catch (error) {
-        console.error("❌ Error removing medication:", error.message);
+        
         res.status(500).json({ message: 'Error removing medication', error: error.message });
     }
 };
@@ -117,7 +117,7 @@ exports.removeMedication = async (req, res) => {
 exports.getMedications = async (req, res) => {
     try {
         const { patientID } = req.params;
-        console.log("🟡 Fetching medications for patientID:", patientID);
+        
 
         const objectIdPatientID = new mongoose.Types.ObjectId(patientID);
         let treatment = await Treatment.findOne({ patientID: objectIdPatientID });
@@ -126,11 +126,11 @@ exports.getMedications = async (req, res) => {
             return res.status(404).json({ message: "No medications found for this patient" });
         }
 
-        console.log("🟢 Medications retrieved:", treatment.medications);
+        
         res.status(200).json({ medications: treatment.medications });
 
     } catch (error) {
-        console.error("❌ Error retrieving medications:", error.message);
+        
         res.status(500).json({ message: 'Error retrieving medications', error: error.message });
     }
 };
@@ -141,10 +141,10 @@ exports.addVitals = async (req, res) => {
         const { patientID, temperature, bloodPressure } = req.body;
         const update = { temperature, bloodPressure, time: new Date() };
 
-        console.log("🟡 Received vitals request for patientID:", patientID);
+    
 
         if (!patientID || !temperature || !bloodPressure) {
-            console.error("❌ Missing required fields");
+         
             return res.status(400).json({ message: "Error: patientID, temperature, and bloodPressure are required" });
         }
 
@@ -160,11 +160,11 @@ exports.addVitals = async (req, res) => {
         }
 
         const savedTreatment = await treatment.save();
-        console.log("🟢 Vitals successfully saved in MongoDB:", savedTreatment);
+        
         res.status(201).json({ message: 'Vitals recorded successfully', treatment: savedTreatment });
 
     } catch (error) {
-        console.error("❌ Error logging vitals:", error.message);
+     
         res.status(500).json({ message: 'Error logging vitals', error: error.message });
     }
 };
@@ -186,7 +186,7 @@ exports.getTreatmentByPatientID = async (req, res) => {
         res.status(200).json({ treatment });
 
     } catch (error) {
-        console.error("❌ Error fetching treatment history:", error.message);
+        
         res.status(500).json({ message: 'Error fetching treatment history', error: error.message });
     }
 };

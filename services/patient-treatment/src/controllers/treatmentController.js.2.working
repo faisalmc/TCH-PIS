@@ -8,11 +8,11 @@ exports.addDiagnosis = async (req, res) => {
         const { patientID, diagnosis, medications } = req.body;
         const doctorID = req.user.userId; // Extract doctor ID from JWT
 
-        console.log("🟡 Received diagnosis request for patientID:", patientID);
+ 
 
         // ✅ Data Validation: Ensure required fields are provided
         if (!patientID || !diagnosis) {
-            console.error("❌ Missing required fields");
+            
             return res.status(400).json({ message: "Error: patientID and diagnosis are required" });
         }
 
@@ -28,7 +28,7 @@ exports.addDiagnosis = async (req, res) => {
             });
             console.log("✅ Patient found:", response.data);
         } catch (error) {
-            console.error("❌ Patient does not exist:", error.response?.data || error.message);
+            
             return res.status(400).json({ message: "Error: Patient does not exist" });
         }
 
