@@ -9,7 +9,7 @@ pipeline {
                     sh '''
                     docker run -d --name tch-pis-container \
                     -p 3000:3000 -p 3001:3001 -p 3002:3002 \
-                    faisalmch/jenkins-node-image:latest bash
+                    tch-pis-image:1.0 bash
                     '''
                 }
             }
