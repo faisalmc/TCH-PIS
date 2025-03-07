@@ -116,7 +116,7 @@ exports.addVitals = async (req, res) => {
 exports.getTreatmentByPatientID = async (req, res) => {
     try {
         const { patientID } = req.params;
-        console.log("🔍 Fetching treatment history for patientID:", patientID);
+        
 
         // ✅ Convert patientID to ObjectId before querying
         const objectIdPatientID = new mongoose.Types.ObjectId(patientID);

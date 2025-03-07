@@ -21,7 +21,7 @@ exports.addDiagnosis = async (req, res) => {
             console.log("✏️ Updating existing diagnosis...");
             treatment.medications = medications;
         } else {
-            console.log("⚠️ No existing diagnosis found. Creating a new one...");
+            
             treatment = new Treatment({ patientID: objectIdPatientID, doctorID, diagnosis, medications });
         }
 
@@ -152,10 +152,10 @@ exports.addVitals = async (req, res) => {
         let treatment = await Treatment.findOne({ patientID: objectIdPatientID });
 
         if (!treatment) {
-            console.log("⚠️ No existing treatment record. Creating a new one...");
+           
             treatment = new Treatment({ patientID: objectIdPatientID, vitals: [update] });
         } else {
-            console.log("✏️ Existing treatment found. Updating vitals...");
+           
             treatment.vitals.push(update);
         }
 
@@ -173,13 +173,13 @@ exports.addVitals = async (req, res) => {
 exports.getTreatmentByPatientID = async (req, res) => {
     try {
         const { patientID } = req.params;
-        console.log("🔍 Fetching treatment history for patientID:", patientID);
+    
 
         const objectIdPatientID = new mongoose.Types.ObjectId(patientID);
         const treatment = await Treatment.find({ patientID: objectIdPatientID });
 
         if (!treatment.length) {
-            console.log("⚠️ No treatment found for patient:", patientID);
+        
             return res.status(404).json({ message: 'No treatment records found for this patient' });
         }
 
