@@ -6,8 +6,8 @@ const treatmentRoutes = require('./routes/treatmentRoutes');
 // require('dotenv').config({ path: '../../../.env' });
 require('dotenv').config({ path: __dirname + '/../../../.env' });
 
-console.log(`🔍 DEBUG: Loaded PORT from .env: ${process.env.PORT}`);
-console.log(`🔍 DEBUG: Loaded Treatment Service Port: ${process.env.TREATMENT_SERVICE_PORT}`);
+// console.log(`🔍 DEBUG: Loaded PORT from .env: ${process.env.PORT}`);
+// console.log(`🔍 DEBUG: Loaded Treatment Service Port: ${process.env.TREATMENT_SERVICE_PORT}`);
 
 const app = express();
 
@@ -21,20 +21,20 @@ connectDB();
 app.use('/api', treatmentRoutes);
 
 // ✅ Debug: Log Registered Routes
-const listRoutes = (app) => {
-    console.log("\n📌 Registered Routes:");
-    app._router.stack.forEach((middleware) => {
-        if (middleware.route) {
-            console.log(`✅ ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
-        } else if (middleware.name === 'router') {
-            middleware.handle.stack.forEach((handler) => {
-                if (handler.route) {
-                    console.log(`✅ ${Object.keys(handler.route.methods).join(', ').toUpperCase()} /api${handler.route.path}`);
-                }
-            });
-        }
-    });
-};
+// const listRoutes = (app) => {
+//     console.log("\n📌 Registered Routes:");
+//     app._router.stack.forEach((middleware) => {
+//         if (middleware.route) {
+//             console.log(`✅ ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+//         } else if (middleware.name === 'router') {
+//             middleware.handle.stack.forEach((handler) => {
+//                 if (handler.route) {
+//                     console.log(`✅ ${Object.keys(handler.route.methods).join(', ').toUpperCase()} /api${handler.route.path}`);
+//                 }
+//             });
+//         }
+//     });
+// };
 
 // Start the server
 // const PORT = process.env.PORT || 3002;
