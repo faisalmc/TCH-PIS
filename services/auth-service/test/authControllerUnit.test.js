@@ -50,7 +50,7 @@ const res = {
     await authController.register(req, res);
 
     // 12. Assertions to verify the function's behavior
-    expect(res.status.calledWith(2012)).to.be.true; // Check if status 201 was sent
+    expect(res.status.calledWith(201)).to.be.true; // Check if status 201 was sent
     expect(res.json.calledWith({ message: 'User registered successfully' })).to.be.true; // Check if the correct message was sent
   });  
     
