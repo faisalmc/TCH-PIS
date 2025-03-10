@@ -7,9 +7,8 @@
   ],
   "scripts": {
     "start": "npm run start --workspace=auth-service",
-    "start-all": "node services/auth-service/src/server.js & node services/patient-registration/src/server.js & node services/patient-treatment/src/server.js",
+    "start-all": "concurrently \"node services/auth-service/src/server.js\" \"node services/patient-registration/src/server.js\" \"node services/patient-treatment/src/server.js\"",
     "test": "cd services/auth-service && npm test && cd ../patient-registration && npm test && cd ../patient-treatment && npm test"
-  
   },
   "keywords": [],
   "author": "",
@@ -22,6 +21,7 @@
   },
   "description": "Monorepo for Patient Information System",
   "dependencies": {
+    "concurrently": "^9.1.2",
     "express": "^4.21.2"
   }
 }
