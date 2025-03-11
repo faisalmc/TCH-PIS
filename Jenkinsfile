@@ -28,6 +28,15 @@ pipeline {
             }
         }
 
+        stage('Static Code Analysis') {
+            steps {
+                // 'SonarQube' is the identifier for the SonarQube server configured in Jenkins global settings
+                withSonarQubeEnv('SonarQube') {
+                    sh 'sonar-scanner'
+                }
+            }
+        }
+
         stage('BUILD') {
             when {
                 expression {
