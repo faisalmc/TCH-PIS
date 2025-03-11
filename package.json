@@ -10,6 +10,15 @@
     "start-all": "concurrently \"node services/auth-service/src/server.js\" \"node services/patient-registration/src/server.js\" \"node services/patient-treatment/src/server.js\"",
     "test": "cd services/auth-service && npm test && cd ../patient-registration && npm test && cd ../patient-treatment && npm test"
   },
+  
+  {
+    "scripts": {
+      "sonar": "sonar-scanner",
+      "start-all": "node services/auth-service/src/server.js & node services/patient-registration/src/server.js & node services/patient-treatment/src/server.js",
+      "test": "cd services/auth-service && npm test && cd ../patient-registration && npm test && cd ../patient-treatment && npm test"
+    }
+  }
+  
   "keywords": [],
   "author": "",
   "license": "ISC",
