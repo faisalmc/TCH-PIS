@@ -28,14 +28,18 @@ pipeline {
             }
         }
 
-        stage('Static Code Analysis') {
-            steps {
-                // 'SonarQube' is the identifier for the SonarQube server configured in Jenkins global settings
-                withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner'
-                }
+     stage('Static Code Analysis') {
+    steps {
+        // Append SonarScanner's bin directory to the PATH
+        withEnv(["PATH+SONAR=/opt/sonar-scanner/bin"]) {
+            // Inject SonarQube environment variables configured in Jenkins
+            withSonarQubeEnv('SonarQube') {
+                sh 'sonar-scanner'
             }
         }
+    }
+}
+
 
         stage('BUILD') {
             when {
@@ -52,6 +56,7 @@ pipeline {
                     '''
                 }
             }
+
         }
     }
 
