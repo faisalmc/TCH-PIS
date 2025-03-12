@@ -60,6 +60,12 @@ pipeline {
             steps {
                 script {
                     sh '''
+                    # Remove existing ZAP container if it exists
+                    if [ "$(docker ps -aq -f name=zap)" ]; then
+                        docker stop zap || true
+                        docker rm zap || true
+                    fi
+                    
                     # Pull the latest stable ZAP image
                     docker pull zaproxy/zap-stable
 
