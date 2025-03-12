@@ -59,28 +59,20 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
                 script {
-                   sh '''
-                    # Start OWASP ZAP in daemon mode
+                     sh '''
+                    # Pull the latest stable ZAP image
                     docker pull zaproxy/zap-stable
+
+                    # Start OWASP ZAP in headless (daemon) mode
                     docker run -d --name zap -p 8088:8088 zaproxy/zap-stable zap.sh -daemon -port 8088
-                    
-                    # Wait for ZAP to start
+
+                    # Wait for ZAP to initialize
                     sleep 10
 
-                    # Scan API on port 3000
-                    docker exec zap zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://tch-pis-container:3000
-                    docker exec zap zap-cli active-scan http://tch-pis-container:3000
-
-                    # Scan API on port 3001
-                    docker exec zap zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://tch-pis-container:3001
-                    docker exec zap zap-cli active-scan http://tch-pis-container:3001
-
-                    # Scan API on port 3002
-                    docker exec zap zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://tch-pis-container:3002
-                    docker exec zap zap-cli active-scan http://tch-pis-container:3002
-
-                    # Generate combined ZAP report
-                    docker exec zap zap-cli report -o /zap/wrk/zap_report.html -f html
+                    # Run ZAP API scan on each API endpoint
+                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3000 -r zap_report_3000.html
+                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3001 -r zap_report_3001.html
+                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3002 -r zap_report_3002.html
                     '''
                 }
             }
