@@ -56,12 +56,12 @@ pipeline {
 
         }
 
-
 stages {
         stage('Postman Tests') {
             steps {
                 script {
-                   
+                    // Install Postman CLI if needed
+                    sh 'curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh'
                     
                     // Log in to Postman CLI using the stored API key
                     // The credentials() step will inject the secret into the environment variable POSTMAN_API_KEY
@@ -72,6 +72,7 @@ stages {
                 }
             }
         }
+    }
     }
 
     post {
