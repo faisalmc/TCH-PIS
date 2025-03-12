@@ -61,7 +61,8 @@ pipeline {
                 script {
                    sh '''
                     # Start OWASP ZAP in daemon mode
-                    docker run -d --name zap -p 8088:8088 owasp/zap2docker-stable zap.sh -daemon -port 8088
+                    docker pull zaproxy/zap-stable
+                    docker run -d --name zap -p 8088:8088 zaproxy/zap-stable zap.sh -daemon -port 8088
                     
                     # Wait for ZAP to start
                     sleep 10
