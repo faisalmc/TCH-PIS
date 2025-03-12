@@ -15,27 +15,27 @@ pipeline {
             }
         }
 
-        // stage('UNIT_TEST') {
-        //     steps {
-        //         script {
-        //             // Clone the repo inside the running container and install dependencies
-        //             sh '''
-        //             docker exec tch-pis-container git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
-        //             docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm install"
-        //             docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run test"
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('UNIT_TEST') {
+            steps {
+                script {
+                    // Clone the repo inside the running container and install dependencies
+                    sh '''
+                    docker exec tch-pis-container git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
+                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm install"
+                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run test"
+                    '''
+                }
+            }
+        }
 
-        // stage('SonarQube Analysis') {
-        //     steps {
-        //         script {
-        //             // Run SonarQube scan using the absolute path to sonar-scanner
-        //             sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=TCH-PIS -Dsonar.projectName=TCH-PIS -Dsonar.projectVersion=1.0 -Dsonar.sources=services -Dsonar.language=js -Dsonar.host.url=http://209.38.120.144:9000 -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e"
-        //         }
-        //     }
-        // }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    // Run SonarQube scan using the absolute path to sonar-scanner
+                    sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=TCH-PIS -Dsonar.projectName=TCH-PIS -Dsonar.projectVersion=1.0 -Dsonar.sources=services -Dsonar.language=js -Dsonar.host.url=http://209.38.120.144:9000 -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e"
+                }
+            }
+        }
 
 
         stage('BUILD') {
