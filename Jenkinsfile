@@ -30,13 +30,11 @@ pipeline {
 
      stage('Static Code Analysis') {
     steps {
-        // Append SonarScanner's bin directory to the PATH
-        withEnv(["PATH+SONAR=/opt/sonar-scanner/bin"]) {
             // Inject SonarQube environment variables configured in Jenkins
             withSonarQubeEnv('SonarQube') {
                 sh 'sonar-scanner'
             }
-        }
+        
     }
 }
 
