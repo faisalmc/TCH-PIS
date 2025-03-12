@@ -85,7 +85,7 @@ pipeline {
 
                     # Wait for ZAP to be ready
                     echo "Waiting for ZAP to fully start..."
-                    timeout=600
+                    timeout=60
                     elapsed=0
                     until curl -s http://localhost:8088 || [ "$elapsed" -ge "$timeout" ]; do
                         echo "Waiting for ZAP... ($elapsed seconds elapsed)"
