@@ -76,8 +76,7 @@ pipeline {
                     sleep 10
 
                     # Copy OpenAPI file into the running ZAP container
-                    chmod 644 /root/openapi.json
-                    docker cp /root/openapi.json zap:/zap/wrk/openapi.json
+                    docker cp openapi.json zap:/zap/wrk/openapi.json
 
                      # Run ZAP API scan on each API endpoint using OpenAPI definition
                     docker exec zap zap-api-scan.py -t /zap/wrk/openapi.json -f openapi -r /zap/wrk/zap_report.html
