@@ -77,8 +77,11 @@ pipeline {
                     # Pull the latest stable ZAP image
                     docker pull zaproxy/zap-stable
 
+                    # Ensure the report directory exists on the host
+                    mkdir -p "$WORKSPACE/zap_reports"
+
                     # Start OWASP ZAP in headless (daemon) mode with volume mount for reports
-                    docker run -d --name zap -p 8088:8088 -v $WORKSPACE/zap_reports:/zap/wrk zaproxy/zap-stable zap.sh -daemon -port 8088
+                    docker run -d --name zap -p 8088:8088 -v "$WORKSPACE/zap_reports:/zap/wrk" zaproxy/zap-stable zap.sh -daemon -port 8088
 
                     # Wait for ZAP to initialize
                     sleep 10
