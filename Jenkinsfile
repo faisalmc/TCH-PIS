@@ -75,26 +75,23 @@ pipeline {
                     # Wait for ZAP to initialize
                     sleep 10
 
-                    # Copy OpenAPI file into the running ZAP container
-                    docker cp openapi.json zap:/zap/wrk/openapi.json
-
                      # Run ZAP API scan on each API endpoint using OpenAPI definition
-                    docker exec zap zap-api-scan.py -t /zap/wrk/openapi.json -f openapi -r /zap/wrk/zap_report.html
+                    docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r /zap/wrk/zap_report.html
                     '''
                 }
             }
         }
     }
 
-    // post {
-    //     always {
-    //         script {
-    //             // Cleanup: Stop and remove the container after the pipeline
-    //             sh '''
-    //             docker stop tch-pis-container zap                      
-    //             docker rm tch-pis-container zap
-    //             '''
-    //         }
-    //     }
-    // }
+    post {
+        always {
+            script {
+                // Cleanup: Stop and remove the container after the pipeline
+                sh '''
+                docker stop tch-pis-container zap                      
+                docker rm tch-pis-container zap
+                '''
+            }
+        }
+    }
 }
