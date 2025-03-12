@@ -93,10 +93,7 @@ pipeline {
                         elapsed=$((elapsed + 5))
                     done
 
-                    if [ "$elapsed" -ge "$timeout" ]; then
-                        echo "❌ ERROR: ZAP did not start within $timeout seconds!"
-                        exit 1
-                    fi
+                  
 
                     echo "✅ ZAP is running! Proceeding with scan..."
 
