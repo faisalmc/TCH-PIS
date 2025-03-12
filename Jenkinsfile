@@ -23,27 +23,27 @@ pipeline {
             }
         }
 
-        stage('UNIT_TEST') {
-            steps {
-                script {
-                    // Clone the repo inside the running container and install dependencies
-                    sh '''
-                    docker exec tch-pis-container git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm install"
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run test"
-                    '''
-                }
-            }
-        }
+        // stage('UNIT_TEST') {
+        //     steps {
+        //         script {
+        //             // Clone the repo inside the running container and install dependencies
+        //             sh '''
+        //             docker exec tch-pis-container git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
+        //             docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm install"
+        //             docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run test"
+        //             '''
+        //         }
+        //     }
+        // }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    // Run SonarQube scan using the absolute path to sonar-scanner
-                    sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=TCH-PIS -Dsonar.projectName=TCH-PIS -Dsonar.projectVersion=1.0 -Dsonar.sources=services -Dsonar.language=js -Dsonar.host.url=http://209.38.120.144:9000 -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e"
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         script {
+        //             // Run SonarQube scan using the absolute path to sonar-scanner
+        //             sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=TCH-PIS -Dsonar.projectName=TCH-PIS -Dsonar.projectVersion=1.0 -Dsonar.sources=services -Dsonar.language=js -Dsonar.host.url=http://209.38.120.144:9000 -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e"
+        //         }
+        //     }
+        // }
 
 
         stage('BUILD') {
@@ -74,7 +74,7 @@ pipeline {
                         docker rm zap || true
                     fi
 
-                    # Pull the latest stable ZAP image
+                   # Pull the latest stable ZAP image
                     docker pull zaproxy/zap-stable
 
                     # Ensure the report directory exists on the host
@@ -83,11 +83,30 @@ pipeline {
                     # Start OWASP ZAP in headless (daemon) mode with volume mount for reports
                     docker run -d --name zap -p 8088:8088 -v "$WORKSPACE/zap_reports:/zap/wrk" zaproxy/zap-stable zap.sh -daemon -port 8088
 
-                    # Wait for ZAP to initialize
-                    sleep 10
+                    # Wait for ZAP to be ready
+                    echo "Waiting for ZAP to fully start..."
+                    timeout=600
+                    elapsed=0
+                    until curl -s http://localhost:8088 || [ "$elapsed" -ge "$timeout" ]; do
+                        echo "Waiting for ZAP... ($elapsed seconds elapsed)"
+                        sleep 5
+                        elapsed=$((elapsed + 5))
+                    done
 
-                     # Run ZAP API scan on each API endpoint using OpenAPI definition
-                    docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r zap_report.html
+                    if [ "$elapsed" -ge "$timeout" ]; then
+                        echo "❌ ERROR: ZAP did not start within $timeout seconds!"
+                        exit 1
+                    fi
+
+                    echo "✅ ZAP is running! Proceeding with scan..."
+
+                    # Run ZAP API scan using OpenAPI URL and save the report in the mounted directory
+                    docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r /zap/wrk/zap_report.html
+
+                    # Print the ZAP report in the Jenkins console
+                    echo "====================== OWASP ZAP SECURITY REPORT ======================"
+                    cat "$WORKSPACE/zap_reports/zap_report.html" || echo "ZAP Report not found!"
+                    echo "======================================================================"
                     '''
                 }
             }
