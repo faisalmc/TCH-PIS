@@ -65,7 +65,7 @@ pipeline {
                         docker stop zap || true
                         docker rm zap || true
                     fi
-                    
+
                     # Pull the latest stable ZAP image
                     docker pull zaproxy/zap-stable
 
@@ -76,6 +76,7 @@ pipeline {
                     sleep 10
 
                     # Copy OpenAPI file into the running ZAP container
+                    chmod 644 /root/openapi.json
                     docker cp /root/openapi.json zap:/zap/wrk/openapi.json
 
                      # Run ZAP API scan on each API endpoint using OpenAPI definition
