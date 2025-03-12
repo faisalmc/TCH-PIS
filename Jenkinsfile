@@ -28,12 +28,21 @@ pipeline {
             }
         }
 
-   stage('Static Code Analysis') {
-  steps {
-    withSonarQubeEnv('SonarQube') {
-      sh '/opt/sonar-scanner/bin/sonar-scanner'  // Use absolute path
+stage('SonarQube Analysis') {
+    steps {
+        withSonarQubeEnv('SonarQube') { // Use your SonarQube installation name
+            sh """
+                sonar-scanner \
+                -Dsonar.projectKey=TCH-PIS \
+                -Dsonar.projectName=TCH-PIS \
+                -Dsonar.projectVersion=1.0 \
+                -Dsonar.sources=services \
+                -Dsonar.language=js \
+                -Dsonar.host.url=http://209.38.120.144:9000 \
+                -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e
+            """
+        }
     }
-  }
 }
 
 
