@@ -28,14 +28,12 @@ pipeline {
             }
         }
 
-     stage('Static Code Analysis') {
-    steps {
-            // Inject SonarQube environment variables configured in Jenkins
-            withSonarQubeEnv('SonarQube') {
-                sh 'sonar-scanner'
-            }
-        
+   stage('Static Code Analysis') {
+  steps {
+    withSonarQubeEnv('SonarQube') {
+      sh '/opt/sonar-scanner/bin/sonar-scanner'  // Use absolute path
     }
+  }
 }
 
 
