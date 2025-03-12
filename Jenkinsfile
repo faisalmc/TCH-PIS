@@ -69,13 +69,16 @@ pipeline {
                     # Pull the latest stable ZAP image
                     docker pull zaproxy/zap-stable
 
-                    # Start OWASP ZAP in headless (daemon) mode
-                    docker run -d --name zap -p 8088:8088 zaproxy/zap-stable zap.sh -daemon -port 8088
+                    # Ensure the report directory exists on the host
+                    mkdir -p $WORKSPACE/zap_reports
+
+                    # Start OWASP ZAP in headless (daemon) mode with volume mount for reports
+                    docker run -d --name zap -p 8088:8088 -v $WORKSPACE/zap_reports:/zap/wrk zaproxy/zap-stable zap.sh -daemon -port 8088
 
                     # Wait for ZAP to initialize
                     sleep 10
 
-                     # Run ZAP API scan on each API endpoint using OpenAPI definition
+                    # Run ZAP API scan using OpenAPI URL and save the report in the mounted directory
                     docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r /zap/wrk/zap_report.html
                     '''
                 }
