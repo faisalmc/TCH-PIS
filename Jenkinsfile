@@ -7,6 +7,14 @@ pipeline {
                 script {
                     // Run the container in detached mode with port mappings
                     sh '''
+                    # Check if the container already exists
+                    if [ "$(docker ps -aq -f name=tch-pis-container)" ]; then
+                        echo "Stopping and removing existing container..."
+                        docker stop tch-pis-container || true
+                        docker rm tch-pis-container || true
+                    fi
+
+                    # Run the new container in detached mode
                     docker run -d --name tch-pis-container \
                     -p 3000:3000 -p 3001:3001 -p 3002:3002 \
                     tch-pis-image:1.0 tail -f /dev/null
