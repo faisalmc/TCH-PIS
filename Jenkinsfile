@@ -56,7 +56,7 @@ pipeline {
 
         }
 
-stages {
+
         stage('Postman Tests') {
             steps {
                 script {
@@ -72,7 +72,7 @@ stages {
                 }
             }
         }
-    }
+    
     }
 
     post {
