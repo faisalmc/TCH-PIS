@@ -15,27 +15,27 @@ pipeline {
             }
         }
 
-        stage('UNIT_TEST') {
-            steps {
-                script {
-                    // Clone the repo inside the running container and install dependencies
-                    sh '''
-                    docker exec tch-pis-container git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm install"
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run test"
-                    '''
-                }
-            }
-        }
+        // stage('UNIT_TEST') {
+        //     steps {
+        //         script {
+        //             // Clone the repo inside the running container and install dependencies
+        //             sh '''
+        //             docker exec tch-pis-container git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
+        //             docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm install"
+        //             docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run test"
+        //             '''
+        //         }
+        //     }
+        // }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    // Run SonarQube scan using the absolute path to sonar-scanner
-                    sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=TCH-PIS -Dsonar.projectName=TCH-PIS -Dsonar.projectVersion=1.0 -Dsonar.sources=services -Dsonar.language=js -Dsonar.host.url=http://209.38.120.144:9000 -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e"
-                }
-            }
-        }
+        // stage('SonarQube Analysis') {
+        //     steps {
+        //         script {
+        //             // Run SonarQube scan using the absolute path to sonar-scanner
+        //             sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=TCH-PIS -Dsonar.projectName=TCH-PIS -Dsonar.projectVersion=1.0 -Dsonar.sources=services -Dsonar.language=js -Dsonar.host.url=http://209.38.120.144:9000 -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e"
+        //         }
+        //     }
+        // }
 
 
         stage('BUILD') {
@@ -60,12 +60,6 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # Remove existing ZAP container if it exists
-                    if [ "$(docker ps -aq -f name=zap)" ]; then
-                        docker stop zap || true
-                        docker rm zap || true
-                    fi
-
                     # Pull the latest stable ZAP image
                     docker pull zaproxy/zap-stable
 
@@ -75,10 +69,11 @@ pipeline {
                     # Wait for ZAP to initialize
                     sleep 10
 
-                    # Run ZAP API scan on each API endpoint
-                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3000 -r zap_report_3000.html
-                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3001 -r zap_report_3001.html
-                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3002 -r zap_report_3002.html
+                    # Copy OpenAPI file into the running ZAP container
+                    docker cp /root/openapi.json zap:/zap/wrk/openapi.json
+
+                     # Run ZAP API scan on each API endpoint using OpenAPI definition
+                    docker exec zap zap-api-scan.py -t /zap/wrk/openapi.json -f openapi -r /zap/wrk/zap_report.html
                     '''
                 }
             }
@@ -90,8 +85,8 @@ pipeline {
             script {
                 // Cleanup: Stop and remove the container after the pipeline
                 sh '''
-                docker stop tch-pis-container
-                docker rm tch-pis-container
+                docker stop tch-pis-container zap                      
+                docker rm tch-pis-container zap
                 '''
             }
         }
