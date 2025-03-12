@@ -28,7 +28,7 @@ pipeline {
             }
         }
 
-stage('SonarQube Analysis') {
+        stage('SonarQube Analysis') {
             steps {
                 script {
                     // Run SonarQube scan using the absolute path to sonar-scanner
@@ -55,16 +55,45 @@ stage('SonarQube Analysis') {
             }
 
         }
-    }
 
-    post {
-        always {
-            script {
-                // Cleanup: Stop and remove the container after the pipeline
-                sh '''
-                docker stop tch-pis-container
-                docker rm tch-pis-container
-                '''
+        stage('Security Testing with OWASP ZAP') {
+            steps {
+                script {
+                   sh '''
+                    # Start OWASP ZAP in daemon mode
+                    docker run -d --name zap -p 8088:8088 owasp/zap2docker-stable zap.sh -daemon -port 8088
+                    
+                    # Wait for ZAP to start
+                    sleep 10
+
+                    # Scan API on port 3000
+                    docker exec zap zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://tch-pis-container:3000
+                    docker exec zap zap-cli active-scan http://tch-pis-container:3000
+
+                    # Scan API on port 3001
+                    docker exec zap zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://tch-pis-container:3001
+                    docker exec zap zap-cli active-scan http://tch-pis-container:3001
+
+                    # Scan API on port 3002
+                    docker exec zap zap-cli quick-scan --self-contained --start-options '-config api.disablekey=true' http://tch-pis-container:3002
+                    docker exec zap zap-cli active-scan http://tch-pis-container:3002
+
+                    # Generate combined ZAP report
+                    docker exec zap zap-cli report -o /zap/wrk/zap_report.html -f html
+                    '''
+                }
+            }
+        }
+
+        post {
+            always {
+                script {
+                    // Cleanup: Stop and remove the container after the pipeline
+                    sh '''
+                    docker stop tch-pis-container
+                    docker rm tch-pis-container
+                    '''
+                }
             }
         }
     }
