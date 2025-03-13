@@ -2,20 +2,34 @@ pipeline {
     agent any
 
     stages {
+
+        stage('Setup Docker Network') {
+            steps {
+                script {
+                    sh '''
+                    # Create Docker network if it doesn’t exist
+                    if [ -z "$(docker network ls | grep zapnet)" ]; then
+                        docker network create zapnet
+                    fi
+                    '''
+                }
+            }
+        }
+
+
+
         stage('Launch Docker Container') {
             steps {
                 script {
-                    // Run the container in detached mode with port mappings
                     sh '''
-                    # Check if the container already exists
+                    # Remove existing container if it exists
                     if [ "$(docker ps -aq -f name=tch-pis-container)" ]; then
-                        echo "Stopping and removing existing container..."
                         docker stop tch-pis-container || true
                         docker rm tch-pis-container || true
                     fi
 
-                    # Run the new container in detached mode
-                    docker run -d --name tch-pis-container \
+                    # Start the API container on zapnet
+                    docker run -d --name tch-pis-container --net zapnet \
                     -p 3000:3000 -p 3001:3001 -p 3002:3002 \
                     tch-pis-image:1.0 tail -f /dev/null
                     '''
@@ -78,12 +92,12 @@ pipeline {
                     docker pull zaproxy/zap-stable
 
                     # Start OWASP ZAP in headless (daemon) mode
-                    docker run -d --name zap -p 8088:8088 zaproxy/zap-stable zap.sh -daemon -port 8088
+                    docker run -d --name zap --net zapnet -p 8088:8088 zaproxy/zap-stable zap.sh -daemon -port 8088
 
                     # Wait for ZAP to initialize
                     sleep 10
 
-                     # Run ZAP API scan on each API endpoint using OpenAPI definition
+                    # Run ZAP API scan on each API endpoint using OpenAPI definition
                     docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r zap_report.html
                     '''
                 }
