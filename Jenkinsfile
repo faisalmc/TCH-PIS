@@ -49,7 +49,7 @@ pipeline {
                 script {
                     // Run start-all command inside the container
                     sh '''
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run start-all"
+                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run start-all &"
                     '''
                 }
             }
