@@ -101,8 +101,8 @@ pipeline {
                     # Wait for ZAP to initialize
                     sleep 10
 
-                    # Run ZAP API scan directly from the OpenAPI URL and save the report
-                    docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r /zap/wrk/zap_report.html
+                    # Run ZAP API scan on each API endpoint using OpenAPI definition
+                    docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r zap_report.html
                     '''
                 }
             }
@@ -114,8 +114,15 @@ pipeline {
             script {
                 // Cleanup: Stop and remove the container after the pipeline
                 sh '''
-                docker stop tch-pis-container zap                      
-                docker rm tch-pis-container zap
+                if [ "$(docker ps -aq -f name=tch-pis-container)" ]; then
+                    docker stop tch-pis-container || true
+                    docker rm tch-pis-container || true
+                fi
+
+                if [ "$(docker ps -aq -f name=zap)" ]; then
+                    docker stop zap || true
+                    docker rm zap || true
+                fi
                 '''
             }
         }
