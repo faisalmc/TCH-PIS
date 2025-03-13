@@ -720,6 +720,4 @@ it('should return 500 if a database error occurs', async () => {
 });
 
 
-
-
 });
