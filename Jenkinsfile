@@ -92,11 +92,11 @@ pipeline {
                     docker pull zaproxy/zap-stable
 
                     # Ensure report directory exists in Jenkins workspace
-                    mkdir -p $WORKSPACE/zap_reports
+                    mkdir -p /var/lib/jenkins/zap_reports
 
                     # Start OWASP ZAP in headless mode with volume mount for reports
                     docker run -d --name zap --net zapnet -p 8088:8088 \
-                    -v $WORKSPACE/zap_reports:/zap/wrk zaproxy/zap-stable zap.sh -daemon -port 8088
+                    -v /var/lib/jenkins/zap_reports:/zap/wrk zaproxy/zap-stable zap.sh -daemon -port 8088
 
                     # Wait for ZAP to initialize
                     sleep 10
