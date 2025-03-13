@@ -88,17 +88,21 @@ pipeline {
                         docker rm zap || true
                     fi
 
-                   # Pull the latest stable ZAP image
+                    # Pull the latest stable ZAP image
                     docker pull zaproxy/zap-stable
 
-                    # Start OWASP ZAP in headless (daemon) mode
-                    docker run -d --name zap --net zapnet -p 8088:8088 zaproxy/zap-stable zap.sh -daemon -port 8088
+                    # Ensure report directory exists in Jenkins workspace
+                    mkdir -p $WORKSPACE/zap_reports
+
+                    # Start OWASP ZAP in headless mode with volume mount for reports
+                    docker run -d --name zap --net zapnet -p 8088:8088 \
+                    -v $WORKSPACE/zap_reports:/zap/wrk zaproxy/zap-stable zap.sh -daemon -port 8088
 
                     # Wait for ZAP to initialize
                     sleep 10
 
-                    # Run ZAP API scan on each API endpoint using OpenAPI definition
-                    docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r zap_report.html
+                    # Run ZAP API scan directly from the OpenAPI URL and save the report
+                    docker exec zap zap-api-scan.py -t https://api.jsonbin.io/v3/qs/67d174468561e97a50ea8087 -f openapi -r /zap/wrk/zap_report.html
                     '''
                 }
             }
