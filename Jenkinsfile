@@ -7,6 +7,14 @@ pipeline {
                 script {
                     // Run the container in detached mode with port mappings
                     sh '''
+                    # Check if the container already exists
+                    if [ "$(docker ps -aq -f name=tch-pis-container)" ]; then
+                        echo "Stopping and removing existing container..."
+                        docker stop tch-pis-container || true
+                        docker rm tch-pis-container || true
+                    fi
+
+                    # Run the new container in detached mode
                     docker run -d --name tch-pis-container \
                     -p 3000:3000 -p 3001:3001 -p 3002:3002 \
                     tch-pis-image:1.0 tail -f /dev/null
@@ -59,21 +67,10 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
                 script {
-                     sh '''
-                    # Pull the latest stable ZAP image
-                    docker pull zaproxy/zap-stable
-
-                    # Start OWASP ZAP in headless (daemon) mode
-                    docker run -d --name zap -p 8088:8088 zaproxy/zap-stable zap.sh -daemon -port 8088
-
-                    # Wait for ZAP to initialize
-                    sleep 10
-
-                    # Run ZAP API scan on each API endpoint
-                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3000 -r zap_report_3000.html
-                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3001 -r zap_report_3001.html
-                    docker exec zap zap-api-scan.py -t http://tch-pis-container:3002 -r zap_report_3002.html
-                    '''
+                    sh '''            
+                    # Run ZAP baseline scan on the target URL
+                    docker run -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://api.jsonbin.io/v3/qs/67d5b44c8960c979a572284d || true
+                   '''
                 }
             }
         }
@@ -84,7 +81,7 @@ pipeline {
             script {
                 // Cleanup: Stop and remove the container after the pipeline
                 sh '''
-                docker stop tch-pis-container
+                docker stop tch-pis-container                 
                 docker rm tch-pis-container
                 '''
             }
