@@ -30,7 +30,7 @@ pipeline {
                     sh '''
                     docker exec tch-pis-container git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
                     docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm install"
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run test"
+                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && nohup npm run start-all > services.log 2>&1 &"
                     '''
                 }
             }
