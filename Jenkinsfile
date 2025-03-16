@@ -64,6 +64,24 @@ pipeline {
 
         }
 
+   stage('Postman Tests') {
+            steps {
+                script {
+                   
+                    
+                    // Log in to Postman CLI using the stored API key
+                    // The credentials() step will inject the secret into the environment variable POSTMAN_API_KEY
+                    withCredentials([string(credentialsId: 'POSTMAN_API_KEY', variable: 'POSTMAN_API_KEY')]) {
+                       // Log in to Postman CLI using the API key from credentials
+                        sh 'postman login --with-api-key $POSTMAN_API_KEY'
+                        
+                        // Run the Postman collection (update collection ID as needed)
+                        sh 'postman collection run "41554359-e3265ee3-4210-401b-a0c3-5507a7ade9ff"'
+                    }
+                }
+            }
+        }
+
         stage('Security Testing with OWASP ZAP') {
             steps {
                 script {
@@ -76,15 +94,15 @@ pipeline {
         }
     }
 
-    // post {
-    //     always {
-    //         script {
-    //             // Cleanup: Stop and remove the container after the pipeline
-    //             sh '''
-    //             docker stop tch-pis-container                 
-    //             docker rm tch-pis-container
-    //             '''
-    //         }
-    //     }
-    // }
+    post {
+        always {
+            script {
+                // Cleanup: Stop and remove the container after the pipeline
+                sh '''
+                docker stop tch-pis-container                 
+                docker rm tch-pis-container
+                '''
+            }
+        }
+    }
 }
