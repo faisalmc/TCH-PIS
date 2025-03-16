@@ -76,15 +76,15 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            script {
-                // Cleanup: Stop and remove the container after the pipeline
-                sh '''
-                docker stop tch-pis-container                 
-                docker rm tch-pis-container
-                '''
-            }
-        }
-    }
+    // post {
+    //     always {
+    //         script {
+    //             // Cleanup: Stop and remove the container after the pipeline
+    //             sh '''
+    //             docker stop tch-pis-container                 
+    //             docker rm tch-pis-container
+    //             '''
+    //         }
+    //     }
+    // }
 }
