@@ -76,7 +76,7 @@ pipeline {
                         sh 'postman login --with-api-key $POSTMAN_API_KEY'
                         
                         // Run the Postman collection (update collection ID as needed)
-                        sh 'postman collection run "41554359-6fded4d4-a411-4e09-9513-bacbabc4025c"'
+                        sh 'postman collection run "41554359-e44420c2-3d8c-4b39-a350-f4cb1fa9e25d"'
                     }
                 }
             }
