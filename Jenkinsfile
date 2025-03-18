@@ -85,36 +85,68 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
         script {
-            sh '''
-                # Start ZAP
-                /opt/zaproxy/zap.sh -daemon -port 8090 -config api.disablekey=true &
-                sleep 15
-
-                # Import Postman collection
-                echo "Importing Postman collection..."
-                curl -X POST "http://localhost:8090/JSON/import/action/importFile/" \
-                     -F "file=@postman-collection.json"
-                
-                # Basic wait and verification
-                sleep 10
-                if ! curl -s "http://localhost:8090/JSON/core/view/sites/" | grep -q "209.38.120.144"; then
-                    echo "❌ Failed to import collection or detect target site"
+                      sh '''
+                # 0. Verify Pre-requisites
+                if [ ! -f postman-collection.json ]; then
+                    echo "❌ Missing postman-collection.json file"
                     exit 1
                 fi
 
-                # Run active scan
-                echo "Starting scan..."
-                SCAN_ID=$(curl -s "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144/" | jq -r .scan)
-                
-                # Monitor scan progress
-                while [[ $(curl -s "http://localhost:8090/JSON/ascan/view/status/?scanId=$SCAN_ID" | jq -r .status) -lt 100 ]]; do
-                    echo "Scan progress: $(curl -s "http://localhost:8090/JSON/ascan/view/status/?scanId=$SCAN_ID" | jq -r .status)%"
-                    sleep 10
-                done
+                # 1. Start ZAP with error trapping
+                echo "Starting ZAP with required add-ons..."
+                if ! /opt/zaproxy/zap.sh -daemon -port 8090 -config api.disablekey=true \\
+                    -addoninstall importexport \\
+                    -addoninstall postman \\
+                    -addonupdate & then
+                    echo "❌ Failed to start ZAP"
+                    exit 1
+                fi
 
-                # Generate report
-                curl -s http://localhost:8090/OTHER/core/other/htmlreport/ > zap-report.html
-                curl http://localhost:8090/JSON/core/action/shutdown/
+                # Wait for ZAP initialization with timeout
+                timeout 30 bash -c 'while ! curl -s http://localhost:8090 >/dev/null; do sleep 2; done' || {
+                    echo "❌ ZAP failed to start within 30 seconds"
+                    exit 1
+                }
+
+                # 2. Import Postman collection with verification
+                echo "Importing Postman collection..."
+                IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importCollection/" \\
+                     -F "file=@postman-collection.json" \\
+                     -F "url=http://209.38.120.144")
+
+                if ! echo "$IMPORT_RESULT" | grep -q '"Result":"OK"'; then
+                    echo "❌ Collection import failed. Response: $IMPORT_RESULT"
+                    exit 1
+                fi
+
+                # 3. Verify URLs in sites tree
+                echo "Verifying imported URLs..."
+                SITES_LIST=$(curl -s "http://localhost:8090/JSON/core/view/sites/")
+                if ! echo "$SITES_LIST" | grep -q "209.38.120.144"; then
+                    echo "❌ Target URL not found in ZAP sites"
+                    echo "Debug - Sites list: $SITES_LIST"
+                    exit 1
+                fi
+
+                # 4. Run scan with progress monitoring
+                echo "Starting security scan..."
+                SCAN_STATUS=$(/opt/zaproxy/zap.sh -cmd \\
+                    -quickurl http://209.38.120.144 \\
+                    -quickprogress \\
+                    -quickout zap-report.html 2>&1)
+
+                if [ $? -ne 0 ]; then
+                    echo "❌ Scan failed. Output: $SCAN_STATUS"
+                    exit 1
+                fi
+
+                # 5. Verify report generation
+                if [ ! -f zap-report.html ]; then
+                    echo "❌ Report file not generated"
+                    exit 1
+                fi
+
+                echo "✅ Scan completed successfully"
             '''
 
         }
@@ -127,6 +159,10 @@ pipeline {
             script {
                   // Archive the security reports
             archiveArtifacts artifacts: "zap-reports/*", allowEmptyArchive: true
+             sh '''
+                # Force cleanup if still running
+                pkill -f "zap.sh" || true
+            '''
                 
                 sh '''
                 docker stop tch-pis-container                 
