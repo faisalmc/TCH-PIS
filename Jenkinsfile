@@ -84,20 +84,30 @@ pipeline {
 
         stage('Security Testing with OWASP ZAP') {
             steps {
-                script {
-                    sh '''            
-                    # Run ZAP baseline scan on the target URL
-                    docker run -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://api.jsonbin.io/v3/qs/67d5b44c8960c979a572284d || true
-                   '''
-                }
-            }
+        script {
+            // Print the job name for verification
+            sh 'echo JOB_NAME: $JOB_NAME'
+
+            // Run ZAP scan
+            sh '''
+            /opt/zaproxy/zap.sh -cmd \
+                -quickurl http://209.38.120.144:3000 \
+                -quickurl http://209.38.120.144:3001 \
+                -quickurl http://209.38.120.144:3002 \
+                -quickout /var/lib/jenkins/workspace/${JOB_NAME}/zap-report.html \
+                -quickprogress || true
+            '''
+        }
+    }
         }
     }
 
     post {
         always {
             script {
-                // Cleanup: Stop and remove the container after the pipeline
+                // Archive the ZAP report
+                archiveArtifacts artifacts: '/var/lib/jenkins/workspace/${JOB_NAME}/zap-report.html', allowEmptyArchive: true
+                
                 sh '''
                 docker stop tch-pis-container                 
                 docker rm tch-pis-container
