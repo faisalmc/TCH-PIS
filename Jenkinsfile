@@ -88,7 +88,7 @@ pipeline {
             // Create directory for ZAP report
             sh 'mkdir -p zap-reports'
             
-            // Run ZAP in daemon mode with a simple passive scan
+            // Run ZAP scan
             sh '''
             # Start ZAP in daemon mode
             /opt/zaproxy/zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true &
@@ -96,13 +96,19 @@ pipeline {
             # Wait for ZAP to start
             sleep 30
             
-            # Use ZAP API to access the target URLs
-            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000"
-            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
-            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
+            # Import the OpenAPI specification from your repo
+            curl -X POST "http://localhost:8090/JSON/openapi/action/importFile/" \\
+              --form "file=@api-spec.yaml" \\
+              --form "target=http://209.38.120.144:3000"
             
-            # Wait for passive scanning to complete
-            sleep 30
+            # Wait for import to complete
+            sleep 20
+            
+            # Start active scan of all endpoints
+            curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000/"
+            
+            # Wait for active scan to complete
+            sleep 180
             
             # Generate HTML report
             curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html

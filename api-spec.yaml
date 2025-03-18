@@ -1,0 +1,295 @@
+openapi: 3.0.0
+info:
+  title: Production
+  description: |-
+    Click on 3 dots  
+    Run Collection  
+    Run Continous Testing
+  version: 1.0.0
+servers:
+  - url: http://209.38.120.144:3000
+  - url: http://209.38.120.144:3001
+  - url: http://209.38.120.144:3002
+components:
+  securitySchemes:
+    noauthAuth:
+      type: http
+      scheme: noauth
+    bearerAuth:
+      type: http
+      scheme: bearer
+tags:
+  - name: Authentication-Registration Test Cases
+  - name: Authentication-Sign-In Test Cases
+  - name: PATIENT-REGISTRATION-TEST-CASES
+  - name: GET PATIENT - ALL Test Cases
+  - name: GET PATIENT - ID Test Cases
+  - name: PATIENT - DIAGNOSIS - DOCTOR - TEST CASES
+  - name: PATIENT-VITAL - NURSE - TEST CASES
+  - name: GET PATIENT TREATMENT RECORD
+  - name: Update Medications
+  - name: Remove Medication
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication-Registration Test Cases
+      summary: Auth Registration/UserName Already Exist
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: testdoctor
+                password: hdjhsdkd
+                role: clerk
+      responses:
+        '400':
+          description: Successful response
+          content:
+            application/json: {}
+  /auth/login:
+    post:
+      tags:
+        - Authentication-Sign-In Test Cases
+      summary: Auth-Sign-In/Empty-Password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: testdocteoq21r
+                password: ''
+      security:
+        - noauthAuth: []
+      responses:
+        '401':
+          description: Successful response
+          content:
+            application/json: {}
+  /patients/register:
+    post:
+      tags:
+        - PATIENT-REGISTRATION-TEST-CASES
+      summary: Missing Authorization Token
+      requestBody:
+        content: {}
+      responses:
+        '401':
+          description: Successful response
+          content:
+            application/json: {}
+  /patients/all:
+    get:
+      tags:
+        - GET PATIENT - ALL Test Cases
+      summary: Invalid authentication token
+      responses:
+        '400':
+          description: Successful response
+          content:
+            application/json: {}
+  /patients/1012:
+    get:
+      tags:
+        - GET PATIENT - ID Test Cases
+      summary: Unauthorized Access
+      responses:
+        '401':
+          description: Successful response
+          content:
+            application/json: {}
+  /patients/9999999:
+    get:
+      tags:
+        - GET PATIENT - ID Test Cases
+      summary: Invalid Patient ID
+      responses:
+        '404':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/diagnosis:
+    post:
+      tags:
+        - PATIENT - DIAGNOSIS - DOCTOR - TEST CASES
+      summary: Invalid patientID
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                patientID: 67abada98e7056a95b8599ee1
+                diagnosis: Sample diagnosis
+                medications:
+                  - Med1
+                  - Med2
+      responses:
+        '500':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/medications/67abada98e7056a95b8599ee:
+    put:
+      tags:
+        - PATIENT - DIAGNOSIS - DOCTOR - TEST CASES
+      summary: New Request
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                medications:
+                  - Med1
+                  - Med2
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/vitals:
+    post:
+      tags:
+        - PATIENT-VITAL - NURSE - TEST CASES
+      summary: Invalid patientID format
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                patientID: 67abada98e7056a95b8599ee1
+                temperature: 37.5
+                bloodPressure: 120/80
+      responses:
+        '500':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/67abada98e7056a95b8599ee:
+    get:
+      tags:
+        - GET PATIENT TREATMENT RECORD
+      summary: Unauthorized access
+      responses:
+        '401':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/67abada98e7056a95b8599ee1:
+    get:
+      tags:
+        - GET PATIENT TREATMENT RECORD
+      summary: Invalid patient ID format
+      responses:
+        '500':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/679e5c72fdc24f8a9c99b5f7:
+    get:
+      tags:
+        - GET PATIENT TREATMENT RECORD
+      summary: Successful Get Patient Treatment
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/medications/679e5c72fdc24f8a9c99b5f7:
+    put:
+      tags:
+        - Remove Medication
+      summary: Updating Medication-Successful
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                medications:
+                  - Amoxicillin
+                  - Ibuprofen
+                  - Panadol
+                  - Paracetamol
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/medications/679e5c72fdc24f8a9c99b5f71:
+    put:
+      tags:
+        - Update Medications
+      summary: Invalid PatientID Format
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                medications:
+                  - Amoxicillin
+                  - Ibuprofen
+                  - Panadol
+                  - Paracetamol
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer
+            eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '500':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/medications/679e5c72fdc24f8a9c99b5f71/Paracetamol:
+    delete:
+      tags:
+        - Remove Medication
+      summary: Wrong Patient-Id
+      responses:
+        '500':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/medications/679e5c72fdc24f8a9c99b5f7/test:
+    delete:
+      tags:
+        - Remove Medication
+      summary: Medication Not Found
+      responses:
+        '400':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/treatment/medications/679e5c72fdc24f8a9c99b5f7/Paracetamol:
+    delete:
+      tags:
+        - Remove Medication
+      summary: Unauthorized Access
+      responses:
+        '401':
+          description: Successful response
+          content:
+            application/json: {}
