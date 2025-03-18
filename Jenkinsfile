@@ -85,37 +85,36 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
         script {
-            // Create directory for ZAP report
-            sh 'mkdir -p zap-reports'
-            
-            // Run ZAP scan
             sh '''
-            # Start ZAP in daemon mode
-            /opt/zaproxy/zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true &
-            
-            # Wait for ZAP to start
-            sleep 30
-            
-            # Import the OpenAPI specification from your repo
-            curl -X POST "http://localhost:8090/JSON/openapi/action/importFile/" \\
-              --form "file=@api-spec.yaml" \\
-              --form "target=http://209.38.120.144:3000"
-            
-            # Wait for import to complete
-            sleep 20
-            
-            # Start active scan of all endpoints
-            curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000/"
-            
-            # Wait for active scan to complete
-            sleep 180
-            
-            # Generate HTML report
-            curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
-            
-            # Shutdown ZAP
-            curl "http://localhost:8090/JSON/core/action/shutdown/"
+                # Install dependencies
+                sudo apt-get install -y jq
+                
+                # Start ZAP
+                /opt/zaproxy/zap.sh -daemon -port 8090 -config api.disablekey=true &
+                sleep 15
+                
+                # Import Postman collection
+                curl -X POST "http://localhost:8090/JSON/import/action/importFile/" \\
+                     -F "file=@postman-collection.json"
+                
+                # Wait for import
+                while ! curl -s http://localhost:8090/JSON/import/view/ImportLogs/ | grep -q "Import successful"; do
+                    sleep 5
+                done
+                
+                # Start scan
+                SCAN_ID=$(curl -s "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000/" | jq -r .scan)
+                
+                # Monitor scan progress
+                while [[ $(curl -s "http://localhost:8090/JSON/ascan/view/status/?scanId=$SCAN_ID" | jq -r .status) -lt 100 ]]; do
+                    sleep 10
+                done
+                
+                # Generate report
+                curl -s http://localhost:8090/OTHER/core/other/htmlreport/ > zap-report.html
+                curl http://localhost:8090/JSON/core/action/shutdown/
             '''
+
         }
     }
         }

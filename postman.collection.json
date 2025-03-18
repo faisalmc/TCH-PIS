@@ -1,0 +1,4082 @@
+{
+	"info": {
+		"_postman_id": "536005ad-d0e6-44a4-b618-6b6730ffa88c",
+		"name": "Production",
+		"description": "Click on 3 dots  \nRun Collection  \nRun Continous Testing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "41554359",
+		"_collection_link": "https://applied-devops-project.postman.co/workspace/4ad286df-c19d-4eda-9339-7e1ba6a5d954/collection/41554359-536005ad-d0e6-44a4-b618-6b6730ffa88c?action=share&source=collection_link&creator=41554359"
+	},
+	"item": [
+		{
+			"name": "Authentication-Registration Test Cases",
+			"item": [
+				{
+					"name": "Auth Registration/Successful",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful Registration\", function () {\r",
+									"    pm.response.to.have.status(201); // Check if status is 201 (Created)\r",
+									"    pm.response.to.have.jsonBody(\"message\"); // Check if response contains 'message'\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random username\r",
+									"function generateRandomUsername() {\r",
+									"    const prefix = \"user_\";\r",
+									"    const randomString = Math.random().toString(36).substring(2, 8);\r",
+									"    return prefix + randomString;\r",
+									"}\r",
+									"\r",
+									"// Function to generate a random password\r",
+									"function generateRandomPassword() {\r",
+									"    const chars = \"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()\";\r",
+									"    let password = \"\";\r",
+									"    for (let i = 0; i < 12; i++) {\r",
+									"        const randomIndex = Math.floor(Math.random() * chars.length);\r",
+									"        password += chars[randomIndex];\r",
+									"    }\r",
+									"    return password;\r",
+									"}\r",
+									"\r",
+									"// Set global variables with random values\r",
+									"pm.globals.set(\"randomUsername\", generateRandomUsername());\r",
+									"pm.globals.set(\"randomPassword\", generateRandomPassword());\r",
+									"\r",
+									"// Set the request body\r",
+									"pm.request.body.update({\r",
+									"    mode: 'raw',\r",
+									"    raw: JSON.stringify({\r",
+									"        username: pm.globals.get(\"randomUsername\"),\r",
+									"        password: pm.globals.get(\"randomPassword\"),\r",
+									"        role: \"clerk\"\r",
+									"    }),\r",
+									"    options: {\r",
+									"        raw: {\r",
+									"            language: 'json'\r",
+									"        }\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": {{randomUsername}},\r\n  \"password\": {{randomPassword}},\r\n  \"role\": \"clerk\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth Registration/Missing-Field-Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing Required Fields\", function () {\r",
+									"    pm.response.to.have.status(400); // Ensure status is 400, not 500\r",
+									"    pm.expect(pm.response.json()).to.have.property('message'); // Ensure the 'message' field exists\r",
+									"    pm.expect(pm.response.json().message).to.include(\"Missing required fields\"); // Check if the message matches\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"password\": \"password123\",\r\n  \"role\": \"clerk\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth Registration/Missing-Field-Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing Required Fields\", function () {\r",
+									"    pm.response.to.have.status(400); // Ensure status is 400, not 500\r",
+									"    pm.expect(pm.response.json()).to.have.property('message'); // Ensure the 'message' field exists\r",
+									"    pm.expect(pm.response.json().message).to.include(\"Missing required fields\"); // Check if the message matches\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"testuserclerk233\",\r\n  \"role\": \"clerk\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth Registration/Invalid-Auth-Role",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random username\r",
+									"function generateRandomUsername() {\r",
+									"    const prefix = \"user_\";\r",
+									"    const randomString = Math.random().toString(36).substring(2, 8);\r",
+									"    return prefix + randomString;\r",
+									"}\r",
+									"\r",
+									"// Function to generate a random password\r",
+									"function generateRandomPassword() {\r",
+									"    const chars = \"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()\";\r",
+									"    let password = \"\";\r",
+									"    for (let i = 0; i < 12; i++) {\r",
+									"        const randomIndex = Math.floor(Math.random() * chars.length);\r",
+									"        password += chars[randomIndex];\r",
+									"    }\r",
+									"    return password;\r",
+									"}\r",
+									"\r",
+									"// Set global variables with random values\r",
+									"pm.globals.set(\"randomUsername\", generateRandomUsername());\r",
+									"pm.globals.set(\"randomPassword\", generateRandomPassword());\r",
+									"\r",
+									"// Set the request body\r",
+									"pm.request.body.update({\r",
+									"    mode: 'raw',\r",
+									"    raw: JSON.stringify({\r",
+									"        username: pm.globals.get(\"randomUsername\"),\r",
+									"        password: pm.globals.get(\"randomPassword\"),\r",
+									"        role: \"non\"\r",
+									"    }),\r",
+									"    options: {\r",
+									"        raw: {\r",
+									"            language: 'json'\r",
+									"        }\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid Role\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"    \r",
+									"    const responseBody = pm.response.json();\r",
+									"    \r",
+									"    pm.expect(responseBody).to.have.property('message');\r",
+									"    pm.expect(responseBody.message).to.equal(\"Error registering user\");\r",
+									"    \r",
+									"    pm.expect(responseBody).to.have.property('error');\r",
+									"    pm.expect(responseBody.error).to.include(\"User validation failed: role:\");\r",
+									"    pm.expect(responseBody.error).to.include(\"is not a valid enum value for path `role`\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": {{randomUsername}},\r\n  \"password\": {{randomPassword}},\r\n  \"role\": \"non\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth-Registration/Invalid-Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Illegal Arguments Error\", function () {\r",
+									"    pm.response.to.have.status(500); // Assuming this is an internal server error\r",
+									"\r",
+									"    const responseBody = pm.response.json();\r",
+									"\r",
+									"    pm.expect(responseBody).to.have.property('message');\r",
+									"    pm.expect(responseBody.message).to.equal(\"Error registering user\");\r",
+									"\r",
+									"    pm.expect(responseBody).to.have.property('error');\r",
+									"    pm.expect(responseBody.error).to.equal(\"Illegal arguments: number, number\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"2123yt3\",\r\n  \"password\": 1223,\r\n  \"role\": \"doctor\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth Registration/UserName Already Exist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Duplicate Email\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    pm.response.to.have.jsonBody(\"message\");\r",
+									"    pm.expect(pm.response.json().message).to.equal(\"Username already exists\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"username\": \"testdoctor\",\r\n  \"password\": \"hdjhsdkd\",\r\n  \"role\": \"clerk\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication-Sign-In Test Cases",
+			"item": [
+				{
+					"name": "Auth-Sign-In/Successful",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful login\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(pm.response.json()).to.have.property('token');\r",
+									"    pm.expect(pm.response.json().token).to.be.a('string');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"username\": \"testdocteoq21r\",\r\n     \"password\": \"testpas21eswqored12\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/login",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth-Sign-In/Invalid Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Login fails with non-existent username\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Invalid credentials');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"username\": \"testdocteoq21r1\",\r\n     \"password\": \"testpas21eswqored12\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/login",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth-Sign-In/Invalid Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for incorrect password\r",
+									"pm.test(\"Login fails with incorrect password\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Invalid credentials');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"username\": \"testdocteoq21r\",\r\n     \"password\": \"testpas21eswqored123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/login",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth-Sign-In/Missing-Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for missing username\r",
+									"pm.test(\"Login fails with missing username\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Invalid credentials');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \r\n     \"password\": \"testpas21eswqored123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/login",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth-Sign-In/Missing-Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for missing password\r",
+									"pm.test(\"Login fails with missing password\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Error logging in');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"username\": \"testdocteoq21r\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/login",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth-Sign-In/Empty Username",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for empty username\r",
+									"pm.test(\"Login fails with empty username\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Invalid credentials');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"username\": \"\",\r\n     \"password\": \"testpas21eswqored12\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/login",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Auth-Sign-In/Empty-Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for empty password\r",
+									"pm.test(\"Login fails with empty password\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Invalid credentials');\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"username\": \"testdocteoq21r\",\r\n     \"password\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3000/auth/login",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3000",
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PATIENT-REGISTRATION-TEST-CASES",
+			"item": [
+				{
+					"name": "Successful patient registration",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random string\r",
+									"function generateRandomString(length) {\r",
+									"    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+									"    let result = '';\r",
+									"    for (let i = 0; i < length; i++) {\r",
+									"        result += chars.charAt(Math.floor(Math.random() * chars.length));\r",
+									"    }\r",
+									"    return result;\r",
+									"}\r",
+									"\r",
+									"// Generate random patient data\r",
+									"const firstName = \"Test\" + generateRandomString(5);\r",
+									"const lastName = \"Patient\" + generateRandomString(5);\r",
+									"const mobile = \"0\" + Math.floor(Math.random() * 9000000000 + 1000000000);\r",
+									"const email = generateRandomString(8) + \"@example.com\";\r",
+									"\r",
+									"// Set the random data as global variables\r",
+									"pm.globals.set(\"firstName\", firstName);\r",
+									"pm.globals.set(\"lastName\", lastName);\r",
+									"pm.globals.set(\"mobile\", mobile);\r",
+									"pm.globals.set(\"email\", email);\r",
+									"\r",
+									"// Make a request to get the authorization token\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the request body\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                firstName: pm.globals.get(\"firstName\"),\r",
+									"                lastName: pm.globals.get(\"lastName\"),\r",
+									"                mobile: pm.globals.get(\"mobile\"),\r",
+									"                email: pm.globals.get(\"email\")\r",
+									"            }),\r",
+									"            options: {\r",
+									"                raw: {\r",
+									"                    language: 'json'\r",
+									"                }\r",
+									"            }\r",
+									"        });\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful patient registration\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Patient registered successfully');\r",
+									"    pm.expect(pm.response.json()).to.have.property('patientId').that.is.a('string');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"{{firstName}}\",\r\n    \"lastName\": \"{{lastName}}\",\r\n    \"mobile\": \"{{mobile}}\",\r\n    \"email\": \"{{email}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Duplicate Mobile Number",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random string\r",
+									"function generateRandomString(length) {\r",
+									"    return Math.random().toString(36).substring(2, length + 2);\r",
+									"}\r",
+									"\r",
+									"// Generate random patient data\r",
+									"const firstName = \"Test\" + generateRandomString(5);\r",
+									"const lastName = \"Patient\" + generateRandomString(5);\r",
+									"const mobile = \"039212213ddsdws31\"; // Using the same mobile number as previously registered patient\r",
+									"const email = generateRandomString(8) + \"@example.com\";\r",
+									"\r",
+									"// Set the random data as global variables\r",
+									"pm.globals.set(\"firstName\", firstName);\r",
+									"pm.globals.set(\"lastName\", lastName);\r",
+									"pm.globals.set(\"mobile\", mobile);\r",
+									"pm.globals.set(\"email\", email);\r",
+									"\r",
+									"// Make a request to get the authorization token\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the request body\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                firstName: pm.globals.get(\"firstName\"),\r",
+									"                lastName: pm.globals.get(\"lastName\"),\r",
+									"                mobile: pm.globals.get(\"mobile\"),\r",
+									"                email: pm.globals.get(\"email\")\r",
+									"            }),\r",
+									"            options: {\r",
+									"                raw: {\r",
+									"                    language: 'json'\r",
+									"                }\r",
+									"            }\r",
+									"        });\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Reject duplicate mobile number\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson.message).to.equal(\"Patient with this mobile number already exists\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Missing Authorization Token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Function to generate a random string\r",
+									"function generateRandomString(length) {\r",
+									"    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\r",
+									"    let result = '';\r",
+									"    for (let i = 0; i < length; i++) {\r",
+									"        result += chars.charAt(Math.floor(Math.random() * chars.length));\r",
+									"    }\r",
+									"    return result;\r",
+									"}\r",
+									"\r",
+									"// Generate random patient data\r",
+									"const firstName = \"Test\" + generateRandomString(5);\r",
+									"const lastName = \"Patient\" + generateRandomString(5);\r",
+									"const mobile = \"0\" + Math.floor(Math.random() * 9000000000 + 1000000000);\r",
+									"const email = generateRandomString(8) + \"@example.com\";\r",
+									"\r",
+									"// Set the random data as global variables\r",
+									"pm.globals.set(\"firstName\", firstName);\r",
+									"pm.globals.set(\"lastName\", lastName);\r",
+									"pm.globals.set(\"mobile\", mobile);\r",
+									"pm.globals.set(\"email\", email);\r",
+									"\r",
+									"// Make a request to get the authorization token\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the request body\r",
+									"        pm.request.body.update({\r",
+									"            mode: 'raw',\r",
+									"            raw: JSON.stringify({\r",
+									"                firstName: pm.globals.get(\"firstName\"),\r",
+									"                lastName: pm.globals.get(\"lastName\"),\r",
+									"                mobile: pm.globals.get(\"mobile\"),\r",
+									"                email: pm.globals.get(\"email\")\r",
+									"            }),\r",
+									"            options: {\r",
+									"                raw: {\r",
+									"                    language: 'json'\r",
+									"                }\r",
+									"            }\r",
+									"        });\r",
+									"        \r",
+									"    \r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Reject request without authorization\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson.message).to.equal(\"Access Denied\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/register",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"register"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GET PATIENT - ALL Test Cases",
+			"item": [
+				{
+					"name": "Successfully getting all patients",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval of all patients\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.expect(pm.response.json()).to.be.an('array');\r",
+									"    pm.expect(pm.response.json().length).to.be.above(0);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Correct patient data structure\", function () {\r",
+									"    const patients = pm.response.json();\r",
+									"    pm.expect(patients[0]).to.have.all.keys('_id', 'firstName', 'lastName', 'mobile', 'email','createdAt','patientId','__v');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/all",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized access",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"        // Remove the Authorization header\r",
+									"pm.request.headers.remove('Authorization');\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized access\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    pm.expect(pm.response.json().message).to.equal(\"Access Denied\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/all",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"all"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid authentication token",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Set an invalid token\r",
+									"pm.request.headers.upsert({\r",
+									"    key: 'Authorization',\r",
+									"    value: 'Bearer invalidtoken123'\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid authentication token\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    pm.expect(pm.response.json().message).to.equal(\"Invalid Token\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/all",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"all"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GET PATIENT - ID Test Cases",
+			"item": [
+				{
+					"name": "Successful retrieval",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: { 'Content-Type': 'application/json' },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (!err) {\r",
+									"        pm.globals.set(\"authToken\", response.json().token);\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval of patient by ID\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    const patient = pm.response.json();\r",
+									"    pm.expect(patient).to.be.an('object');\r",
+									"    pm.expect(patient).to.have.property('patientId', '1012');\r",
+									"    pm.expect(patient).to.have.all.keys('_id', 'firstName', 'lastName', 'mobile', 'email','createdAt','patientId','__v');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/1012",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"1012"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid Patient ID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: { 'Content-Type': 'application/json' },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (!err) {\r",
+									"        pm.globals.set(\"authToken\", response.json().token);\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid patient ID returns 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Patient not found');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/9999999",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"9999999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Access",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: { 'Content-Type': 'application/json' },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (!err) {\r",
+									"        pm.globals.set(\"authToken\", response.json().token);\r",
+									"    }\r",
+									"    // Remove the Authorization header to test unauthorized access\r",
+									"    pm.request.headers.remove('Authorization');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized access returns 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    pm.expect(pm.response.json()).to.have.property('message', 'Access Denied');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3001/patients/1012",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3001",
+							"path": [
+								"patients",
+								"1012"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PATIENT - DIAGNOSIS - DOCTOR - TEST CASES",
+			"item": [
+				{
+					"name": "Successful diagnosis creation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"212322333E4W2\",\r",
+									"            password: \"3232332242\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful diagnosis creation\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Diagnosis recorded successfully\");\r",
+									"    pm.expect(jsonData).to.have.property('treatment');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee\",\r\n  \"diagnosis\": \"Sample diagnosis\",\r\n  \"medications\": [\"Med1\", \"Med2\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/diagnosis",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"diagnosis"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Updating existing diagnosis",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"212322333E4W2\",\r",
+									"            password: \"3232332242\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Updating existing diagnosis\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Diagnosis recorded successfully\");\r",
+									"    pm.expect(jsonData.treatment.medications).to.include(\"Med1\",\"Med2\",\"Med3\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee\",\r\n  \"diagnosis\": \"Sample diagnosis\",\r\n  \"medications\": [\"Med1\", \"Med2\",\"Med 3\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/diagnosis",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"diagnosis"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Access",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"212322333Ee4W2\",\r",
+									"            password: \"323233224r2\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized access\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Access Denied: Doctors only\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee\",\r\n  \"diagnosis\": \"Sample diagnosis\",\r\n  \"medications\": [\"Med1\", \"Med2\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/diagnosis",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"diagnosis"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Missing patientID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"212322333E4W2\",\r",
+									"            password: \"3232332242\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing patientID\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Error: patientID and diagnosis are required\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \r\n  \"diagnosis\": \"Sample diagnosis\",\r\n  \"medications\": [\"Med1\", \"Med2\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/diagnosis",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"diagnosis"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Missing diagnosis",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"212322333E4W2\",\r",
+									"            password: \"3232332242\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing patientID\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Error: patientID and diagnosis are required\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"patientID\": \"67abada98e7056a95b8599ee\", \r\n  \"medications\": [\"Med1\", \"Med2\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/diagnosis",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"diagnosis"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid patientID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"212322333E4W2\",\r",
+									"            password: \"3232332242\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid patientID format\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Error recording diagnosis\");\r",
+									"    pm.expect(jsonData.error).to.eql(\"input must be a 24 character hex string, 12 byte Uint8Array, or an integer\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee1\",\r\n  \"diagnosis\": \"Sample diagnosis\",\r\n  \"medications\": [\"Med1\", \"Med2\"]\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/diagnosis",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"diagnosis"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Validate response status code",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"// Validate response time is less than 1 second",
+									"pm.test(\"Response time is less than 1000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);",
+									"});",
+									"",
+									"// Validate response contains treatment object with medications",
+									"pm.test(\"Response contains treatment with medications\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property(\"treatment\");",
+									"    pm.expect(jsonData.treatment).to.have.property(\"medications\");",
+									"    pm.expect(jsonData.treatment.medications).to.be.an(\"array\");",
+									"});",
+									"",
+									"// Validate specific medication values are present",
+									"pm.test(\"Response contains specific medications\", function () {",
+									"    const jsonData = pm.response.json();",
+									"    pm.expect(jsonData.treatment.medications).to.include.members([\"Med1\", \"Med2\"]);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"medications\": [\"Med1\", \"Med2\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/67abada98e7056a95b8599ee",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"67abada98e7056a95b8599ee"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PATIENT-VITAL - NURSE - TEST CASES",
+			"item": [
+				{
+					"name": "Successful vitals creation",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"2123223332\",\r",
+									"            password: \"323233224\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful vitals creation\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Vitals recorded successfully\");\r",
+									"    pm.expect(jsonData).to.have.property('treatment');\r",
+									"    pm.expect(jsonData.treatment.vitals).to.be.an('array').that.is.not.empty;\r",
+									"    pm.expect(jsonData.treatment.vitals[0].temperature).to.eql(37.5);\r",
+									"    pm.expect(jsonData.treatment.vitals[0].bloodPressure).to.eql(\"120/80\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee\",\r\n  \"temperature\": 37.5,\r\n  \"bloodPressure\": \"120/80\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/vitals",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"vitals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized access",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"212322333E4W2\",\r",
+									"            password: \"3232332242\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized access\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Access Denied: Nurses only\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee\",\r\n  \"temperature\": 37.5,\r\n  \"bloodPressure\": \"120/80\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/vitals",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"vitals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Missing patientID",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"2123223332\",\r",
+									"            password: \"323233224\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing patientID\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Error: patientID, temperature, and bloodPressure are required\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \r\n  \"temperature\": 37.5,\r\n  \"bloodPressure\": \"120/80\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/vitals",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"vitals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Missing temperature",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"2123223332\",\r",
+									"            password: \"323233224\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing temperature\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Error: patientID, temperature, and bloodPressure are required\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee\",\r\n  \"bloodPressure\": \"120/80\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/vitals",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"vitals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Missing bloodPressure",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"2123223332\",\r",
+									"            password: \"323233224\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing bloodPressure\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Error: patientID, temperature, and bloodPressure are required\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee\",\r\n  \"temperature\": 37.5\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/vitals",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"vitals"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid patientID format",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"2123223332\",\r",
+									"            password: \"323233224\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid patientID format\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Error logging vitals\");\r",
+									"    pm.expect(jsonData.error).to.eql(\"input must be a 24 character hex string, 12 byte Uint8Array, or an integer\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"patientID\": \"67abada98e7056a95b8599ee1\",\r\n  \"temperature\": 37.5,\r\n  \"bloodPressure\": \"120/80\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/vitals",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"vitals"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GET PATIENT TREATMENT RECORD",
+			"item": [
+				{
+					"name": "Unauthorized access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized access\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Access Denied: No Token Provided\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"packages": {},
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/67abada98e7056a95b8599ee",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"67abada98e7056a95b8599ee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid patient ID format",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"user_gkh2ry\",\r",
+									"            password: \"pC7#hdE@j2TH\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid patientID format\", function () {\r",
+									"    pm.response.to.have.status(500);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"Error fetching treatment history\");\r",
+									"    pm.expect(jsonData.error).to.eql(\"input must be a 24 character hex string, 12 byte Uint8Array, or an integer\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/67abada98e7056a95b8599ee1",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"67abada98e7056a95b8599ee1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Successful Get Patient Treatment",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"user_gkh2ry\",",
+									"            password: \"pC7#hdE@j2TH\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Response structure is valid\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(jsonData).to.be.an('object');",
+									"    pm.expect(jsonData).to.have.property('treatment').that.is.an('array');",
+									"    pm.expect(jsonData.treatment).to.have.lengthOf.at.least(1);",
+									"});",
+									"",
+									"if (jsonData.treatment && jsonData.treatment.length > 0) {",
+									"    const treatment = jsonData.treatment[0];",
+									"",
+									"    pm.test(\"Treatment object structure is valid\", function () {",
+									"        pm.expect(treatment).to.be.an('object');",
+									"        pm.expect(treatment).to.have.property('_id').that.is.a('string');",
+									"        pm.expect(treatment).to.have.property('patientID', '679e5c72fdc24f8a9c99b5f7');",
+									"        pm.expect(treatment).to.have.property('doctorID', '679f61e645cffd5755532364');",
+									"        pm.expect(treatment).to.have.property('diagnosis', 'Pneumonia');",
+									"        pm.expect(treatment).to.have.property('medications').that.is.an('array');",
+									"        pm.expect(treatment).to.have.property('vitals').that.is.an('array');",
+									"        pm.expect(treatment).to.have.property('createdAt').that.is.a('string');",
+									"        pm.expect(treatment).to.have.property('__v').that.is.a('number');",
+									"    });",
+									"",
+									"    pm.test(\"Medications array contains expected items\", function () {",
+									"        pm.expect(treatment.medications).to.include.members(['Amoxicillin', 'Ibuprofen', 'Panadol']);",
+									"    });",
+									"",
+									"    pm.test(\"Vitals array is empty\", function () {",
+									"        pm.expect(treatment.vitals).to.be.empty;",
+									"    });",
+									"} else {",
+									"    pm.test(\"Treatment array is unexpectedly empty\", function () {",
+									"        pm.expect.fail(\"The treatment array is empty, which is unexpected.\");",
+									"    });",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/679e5c72fdc24f8a9c99b5f7",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"679e5c72fdc24f8a9c99b5f7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update Medications",
+			"item": [
+				{
+					"name": "Successful Message",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script\r",
+									"pm.sendRequest({\r",
+									"    url: 'http://209.38.120.144:3000/auth/login',\r",
+									"    method: 'POST',\r",
+									"    header: {\r",
+									"        'Content-Type': 'application/json'\r",
+									"    },\r",
+									"    body: {\r",
+									"        mode: 'raw',\r",
+									"        raw: JSON.stringify({\r",
+									"            username: \"212322333E4W2\",\r",
+									"            password: \"3232332242\"\r",
+									"        })\r",
+									"    }\r",
+									"}, function (err, response) {\r",
+									"    if (err) {\r",
+									"        console.error(err);\r",
+									"    } else {\r",
+									"        const jsonResponse = response.json();\r",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);\r",
+									"        \r",
+									"        // Set the Authorization header\r",
+									"        pm.request.headers.upsert({\r",
+									"            key: 'Authorization',\r",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")\r",
+									"        });\r",
+									"    }\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successful retrieval of treatment data\", function () {\r",
+									"    let jsonData = pm.response.json();\r",
+									"\r",
+									"    // Ensure response has a 'treatment' object\r",
+									"    pm.expect(jsonData).to.have.property('treatment');\r",
+									"\r",
+									"    // Check that 'treatment' has the expected properties\r",
+									"    pm.expect(jsonData.treatment).to.have.property('_id');\r",
+									"    pm.expect(jsonData.treatment).to.have.property('patientID');\r",
+									"    pm.expect(jsonData.treatment).to.have.property('doctorID');\r",
+									"    pm.expect(jsonData.treatment).to.have.property('diagnosis');\r",
+									"    pm.expect(jsonData.treatment).to.have.property('medications'); // Ensure 'medications' exist\r",
+									"    pm.expect(jsonData.treatment.medications).to.be.an('array'); // Ensure 'medications' is an array\r",
+									"\r",
+									"\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"medications\": [\"Amoxicillin\", \"Ibuprofen\", \"Panadol\", \"Paracetamol\"]\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f7",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invalid PatientID Format",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid patientID format\", function () {",
+									"    pm.response.to.have.status(500);",
+									"    pm.expect(pm.response.json().message).to.include(\"Error updating medications\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"medications\": [\"Amoxicillin\", \"Ibuprofen\", \"Panadol\", \"Paracetamol\"]\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f71",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f71"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Missing Medications Array",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing medications array\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    let jsonData = pm.response.json();",
+									"    pm.expect(jsonData.message).to.eql(\"Error: Medications must be an array\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f7",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Non-Array Medications",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Non-array medications format\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.json().message).to.eql(\"Error: Medications must be an array\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f7",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Empty Medications Array (Edge Case)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Empty medications array handling\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    pm.expect(pm.response.json().treatment.medications).to.be.an('array').that.is.empty;",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"medications\": []\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f7",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized access handling\", function () {",
+									"    pm.response.to.have.status(403);",
+									"    pm.expect(pm.response.json().message).to.include(\"Access Denied: Doctors only\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"user_gkh2ry\",",
+									"            password: \"pC7#hdE@j2TH\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"medications\": []\n  }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f7",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Remove Medication",
+			"item": [
+				{
+					"name": "Updating Medication-Successful",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Successfully updated medication\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData.message).to.eql(\"Medications updated successfully\");",
+									"    pm.expect(jsonData.treatment).to.be.an('object');",
+									"    pm.expect(jsonData.treatment.medications).to.be.an('array');",
+									"    ",
+									"    // Remove this check as Paracetamol is now included",
+									"    // pm.expect(jsonData.treatment.medications).to.not.include(\"Paracetamol\");",
+									"    ",
+									"    // If you have stored the original medication count",
+									"    if (pm.environment.get(\"originalMedicationCount\")) {",
+									"        pm.expect(jsonData.treatment.medications.length).to.be.greaterThanOrEqual(",
+									"            pm.environment.get(\"originalMedicationCount\")",
+									"        );",
+									"    }",
+									"    ",
+									"    // Additional checks based on the response",
+									"    pm.expect(jsonData.treatment._id).to.eql(\"67a9a55ef110af9c42eb00a7\");",
+									"    pm.expect(jsonData.treatment.patientID).to.eql(\"679e5c72fdc24f8a9c99b5f7\");",
+									"    pm.expect(jsonData.treatment.doctorID).to.eql(\"679f61e645cffd5755532364\");",
+									"    pm.expect(jsonData.treatment.diagnosis).to.eql(\"Pneumonia\");",
+									"    pm.expect(jsonData.treatment.medications).to.eql([\"Amoxicillin\", \"Ibuprofen\", \"Panadol\", \"Paracetamol\"]);",
+									"    pm.expect(jsonData.treatment.vitals).to.be.an('array').that.is.empty;",
+									"    pm.expect(jsonData.treatment.createdAt).to.eql(\"2025-02-10T07:06:06.923Z\");",
+									" ",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzlmNjFlNjQ1Y2ZmZDU3NTU1MzIzNjQiLCJyb2xlIjoiZG9jdG9yIiwiaWF0IjoxNzQwNDgzOTY2LCJleHAiOjE3NDA0ODc1NjZ9.o7XLHIQ3glZje6lx0WmZR2AXe-1c67GVWD-zkE03QEo"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"medications\": [\"Amoxicillin\", \"Ibuprofen\", \"Panadol\", \"Paracetamol\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f7",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Medication-Successfull",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid patientID format\", function () {",
+									"    // Validate status code matches actual error response",
+									"    pm.response.to.have.status(500);",
+									"    ",
+									"    // Check error message structure",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message', 'Error removing medication');",
+									"    pm.expect(responseJson).to.have.property('error');",
+									"    ",
+									"    // Verify specific ObjectID validation error (from search result [1])",
+									"    pm.expect(responseJson.error).to.include(",
+									"        \"must be a 24 character hex string\"",
+									"    );",
+									"    ",
+									"    // Additional validation for error details (from search result [7])",
+									"    pm.expect(responseJson.error).to.match(/24 character hex/);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f71/Paracetamol",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f71",
+								"Paracetamol"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Wrong Patient-Id",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Invalid patientID format\", function () {",
+									"    // Validate status code matches actual error response",
+									"    pm.response.to.have.status(500);",
+									"    ",
+									"    // Check error message structure",
+									"    const responseJson = pm.response.json();",
+									"    pm.expect(responseJson).to.have.property('message', 'Error removing medication');",
+									"    pm.expect(responseJson).to.have.property('error');",
+									"    ",
+									"    // Verify specific ObjectID validation error (from search result [1])",
+									"    pm.expect(responseJson.error).to.include(",
+									"        \"must be a 24 character hex string\"",
+									"    );",
+									"    ",
+									"    // Additional validation for error details (from search result [7])",
+									"    pm.expect(responseJson.error).to.match(/24 character hex/);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f71/Paracetamol",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f71",
+								"Paracetamol"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Medication Not Found",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Pre-request Script",
+									"pm.sendRequest({",
+									"    url: 'http://209.38.120.144:3000/auth/login',",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/json'",
+									"    },",
+									"    body: {",
+									"        mode: 'raw',",
+									"        raw: JSON.stringify({",
+									"            username: \"212322333E4W2\",",
+									"            password: \"3232332242\"",
+									"        })",
+									"    }",
+									"}, function (err, response) {",
+									"    if (err) {",
+									"        console.error(err);",
+									"    } else {",
+									"        const jsonResponse = response.json();",
+									"        pm.globals.set(\"authToken\", jsonResponse.token);",
+									"        ",
+									"        // Set the Authorization header",
+									"        pm.request.headers.upsert({",
+									"            key: 'Authorization',",
+									"            value: 'Bearer ' + pm.globals.get(\"authToken\")",
+									"        });",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Missing medication parameter\", function () {",
+									"    pm.response.to.have.status(400);",
+									"    pm.expect(pm.response.json().message).to.include(\"Medication not found in treatment record\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f7/test",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f7",
+								"test"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Unauthorized Access",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Unauthorized access handling\", function () {",
+									"    pm.response.to.have.status(401);",
+									"    pm.expect(pm.response.json().message).to.include(\"Access Denied: No Token Provided\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://209.38.120.144:3002/api/treatment/medications/679e5c72fdc24f8a9c99b5f7/Paracetamol ",
+							"protocol": "http",
+							"host": [
+								"209",
+								"38",
+								"120",
+								"144"
+							],
+							"port": "3002",
+							"path": [
+								"api",
+								"treatment",
+								"medications",
+								"679e5c72fdc24f8a9c99b5f7",
+								"Paracetamol "
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
