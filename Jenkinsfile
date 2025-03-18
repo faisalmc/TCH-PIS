@@ -85,75 +85,30 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
         script {
-             // Create directory for reports
-            sh 'mkdir -p security-reports'
+            // Create directory for ZAP report
+            sh 'mkdir -p zap-reports'
             
-            // Test the APIs using curl and save results
+            // Run ZAP in daemon mode with a simple passive scan
             sh '''
-            # Test endpoint 1
-            echo "Testing API: http://209.38.120.144:3000/auth/register" >> security-reports/test-results.txt
-            curl -s -o security-reports/api1-response.json -w "Status: %{http_code}\\n" \
-              --location 'http://209.38.120.144:3000/auth/register' \
-              --header 'Content-Type: application/json' \
-              --data '{"username": "test_user1", "password": "Test123!", "role": "clerk"}' \
-              >> security-reports/test-results.txt
-            echo "--------------------" >> security-reports/test-results.txt
+            # Start ZAP in daemon mode
+            /opt/zaproxy/zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true &
             
-            # Test endpoint 2
-            echo "Testing API: http://209.38.120.144:3001" >> security-reports/test-results.txt
-            curl -s -o security-reports/api2-response.json -w "Status: %{http_code}\\n" \
-              --location 'http://209.38.120.144:3001' \
-              >> security-reports/test-results.txt
-            echo "--------------------" >> security-reports/test-results.txt
+            # Wait for ZAP to start
+            sleep 30
             
-            # Test endpoint 3
-            echo "Testing API: http://209.38.120.144:3002" >> security-reports/test-results.txt
-            curl -s -o security-reports/api3-response.json -w "Status: %{http_code}\\n" \
-              --location 'http://209.38.120.144:3002' \
-              >> security-reports/test-results.txt
+            # Use ZAP API to access the target URLs
+            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000"
+            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
+            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
             
-            # Create HTML report
-            echo "<html>
-            <head>
-                <title>API Security Test Report</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    h1 { color: #2c3e50; }
-                    .endpoint { background-color: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 5px; }
-                    .status-200 { color: green; }
-                    .status-error { color: red; }
-                </style>
-            </head>
-            <body>
-                <h1>API Security Test Report</h1>
-                <p>Generated on: $(date)</p>
-                
-                <h2>Endpoints Tested:</h2>
-                <div class='endpoint'>
-                    <h3>1. http://209.38.120.144:3000/auth/register</h3>
-                    <p>Status: $(grep 'Status:' security-reports/test-results.txt | head -1 | cut -d' ' -f2)</p>
-                </div>
-                
-                <div class='endpoint'>
-                    <h3>2. http://209.38.120.144:3001</h3>
-                    <p>Status: $(grep 'Status:' security-reports/test-results.txt | head -2 | tail -1 | cut -d' ' -f2)</p>
-                </div>
-                
-                <div class='endpoint'>
-                    <h3>3. http://209.38.120.144:3002</h3>
-                    <p>Status: $(grep 'Status:' security-reports/test-results.txt | head -3 | tail -1 | cut -d' ' -f2)</p>
-                </div>
-                
-                <h2>Security Recommendations:</h2>
-                <ul>
-                    <li>Ensure proper input validation on all endpoints</li>
-                    <li>Implement rate limiting to prevent brute force attacks</li>
-                    <li>Use HTTPS instead of HTTP for all API communications</li>
-                    <li>Implement proper authentication and authorization</li>
-                    <li>Regularly update dependencies to prevent vulnerabilities</li>
-                </ul>
-            </body>
-            </html>" > security-reports/api-security-report.html
+            # Wait for passive scanning to complete
+            sleep 30
+            
+            # Generate HTML report
+            curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
+            
+            # Shutdown ZAP
+            curl "http://localhost:8090/JSON/core/action/shutdown/"
             '''
         }
     }
@@ -164,7 +119,7 @@ pipeline {
         always {
             script {
                   // Archive the security reports
-            archiveArtifacts artifacts: "security-reports/**/*", allowEmptyArchive: true
+            archiveArtifacts artifacts: "zap-reports/*", allowEmptyArchive: true
                 
                 sh '''
                 docker stop tch-pis-container                 
