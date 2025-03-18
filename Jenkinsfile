@@ -85,20 +85,19 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
         script {
-            // Print the job name for verification
+             // Print the job name for verification
             sh 'echo JOB_NAME: $JOB_NAME'
 
-               // Run ZAP scan on port 8090
-            sh """
-            /opt/zaproxy/zap.sh -cmd \\
-                -host 0.0.0.0 \\
-                -port 8090 \\
-                -quickurl http://209.38.120.144:3000 \\
-                -quickurl http://209.38.120.144:3001 \\
-                -quickurl http://209.38.120.144:3002 \\
-                -quickout zap-report.html \\
-                -quickprogress || true
-            """
+            // Create a simple script to run ZAP
+            writeFile file: 'run-zap.sh', text: '''#!/bin/bash
+            /opt/zaproxy/zap.sh -cmd -quickurl http://209.38.120.144:3000 -quickurl http://209.38.120.144:3001 -quickurl http://209.38.120.144:3002 -quickout zap-report.html -quickprogress
+            '''
+            
+            // Make it executable and run it
+            sh '''
+            chmod +x run-zap.sh
+            ./run-zap.sh
+            '''
         }
     }
         }
