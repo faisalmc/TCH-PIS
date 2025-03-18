@@ -88,9 +88,11 @@ pipeline {
             // Print the job name for verification
             sh 'echo JOB_NAME: $JOB_NAME'
 
-            // Run ZAP scan
+            // Run ZAP scan on port 8090
             sh '''
             /opt/zaproxy/zap.sh -cmd \
+                -host 0.0.0.0 \
+                -port 8090 \
                 -quickurl http://209.38.120.144:3000 \
                 -quickurl http://209.38.120.144:3001 \
                 -quickurl http://209.38.120.144:3002 \
