@@ -94,10 +94,11 @@ pipeline {
                 -quickurl http://209.38.120.144:3000 \
                 -quickurl http://209.38.120.144:3001 \
                 -quickurl http://209.38.120.144:3002 \
-                -quickout /var/lib/jenkins/workspace/${JOB_NAME}/zap-report.html \
+                -quickout "/var/lib/jenkins/workspace/${JOB_NAME}/zap-report.html" \
                 -quickprogress || true
             '''
         }
+    }
     }
         }
     }
