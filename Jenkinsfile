@@ -108,7 +108,7 @@ pipeline {
         always {
             script {
                 // Archive the ZAP report
-                archiveArtifacts artifacts: '/var/lib/jenkins/workspace/${JOB_NAME}/zap-report.html', allowEmptyArchive: true
+                archiveArtifacts "zap-report.html"
                 
                 sh '''
                 docker stop tch-pis-container                 
