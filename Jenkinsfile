@@ -86,30 +86,32 @@ pipeline {
             steps {
         script {
             sh '''
-                # Install dependencies
-                sudo apt-get install -y jq
-                
                 # Start ZAP
                 /opt/zaproxy/zap.sh -daemon -port 8090 -config api.disablekey=true &
                 sleep 15
-                
+
                 # Import Postman collection
-                curl -X POST "http://localhost:8090/JSON/import/action/importFile/" \\
+                echo "Importing Postman collection..."
+                curl -X POST "http://localhost:8090/JSON/import/action/importFile/" \
                      -F "file=@postman-collection.json"
                 
-                # Wait for import
-                while ! curl -s http://localhost:8090/JSON/import/view/ImportLogs/ | grep -q "Import successful"; do
-                    sleep 5
-                done
-                
-                # Start scan
-                SCAN_ID=$(curl -s "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000/" | jq -r .scan)
+                # Basic wait and verification
+                sleep 10
+                if ! curl -s "http://localhost:8090/JSON/core/view/sites/" | grep -q "209.38.120.144"; then
+                    echo "❌ Failed to import collection or detect target site"
+                    exit 1
+                fi
+
+                # Run active scan
+                echo "Starting scan..."
+                SCAN_ID=$(curl -s "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144/" | jq -r .scan)
                 
                 # Monitor scan progress
                 while [[ $(curl -s "http://localhost:8090/JSON/ascan/view/status/?scanId=$SCAN_ID" | jq -r .status) -lt 100 ]]; do
+                    echo "Scan progress: $(curl -s "http://localhost:8090/JSON/ascan/view/status/?scanId=$SCAN_ID" | jq -r .status)%"
                     sleep 10
                 done
-                
+
                 # Generate report
                 curl -s http://localhost:8090/OTHER/core/other/htmlreport/ > zap-report.html
                 curl http://localhost:8090/JSON/core/action/shutdown/
