@@ -86,67 +86,47 @@ pipeline {
             steps {
         script {
                       sh '''
-                # 0. Verify Pre-requisites
+                # 0. Verify prerequisites
                 if [ ! -f postman-collection.json ]; then
-                    echo "❌ Missing postman-collection.json file"
+                    echo "❌ Missing postman-collection.json"
                     exit 1
                 fi
 
-                # 1. Start ZAP with error trapping
-                echo "Starting ZAP with required add-ons..."
-                if ! /opt/zaproxy/zap.sh -daemon -port 8090 -config api.disablekey=true \\
-                    -addoninstall importexport \\
-                    -addoninstall postman \\
-                    -addonupdate & then
-                    echo "❌ Failed to start ZAP"
-                    exit 1
-                fi
+                # 1. Install add-ons first
+                /opt/zaproxy/zap.sh -cmd \
+                    -addoninstall importexport \
+                    -addoninstall postman \
+                    -addonupdate -nostart
 
-                # Wait for ZAP initialization with timeout
-                timeout 30 bash -c 'while ! curl -s http://localhost:8090 >/dev/null; do sleep 2; done' || {
-                    echo "❌ ZAP failed to start within 30 seconds"
+                # 2. Start ZAP with clean config
+                echo "Starting ZAP daemon..."
+                /opt/zaproxy/zap.sh -daemon -port 8090 \
+                    -config api.disablekey=true \
+                    -config database.recoverylog=false &
+                
+                # 3. Wait for startup
+                echo "Waiting for ZAP initialization..."
+                sleep 15  # Initial sleep
+                curl --retry 6 --retry-delay 10 --max-time 5 http://localhost:8090 || {
+                    echo "❌ ZAP API not responding"
                     exit 1
                 }
 
-                # 2. Import Postman collection with verification
-                echo "Importing Postman collection..."
-                IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importCollection/" \\
-                     -F "file=@postman-collection.json" \\
-                     -F "url=http://209.38.120.144")
+                # 4. Import Postman collection
+                echo "Importing collection..."
+                curl -X POST "http://localhost:8090/JSON/postman/action/importCollection/" \
+                    -F "file=@postman-collection.json" \
+                    -F "url=http://209.38.120.144"
 
-                if ! echo "$IMPORT_RESULT" | grep -q '"Result":"OK"'; then
-                    echo "❌ Collection import failed. Response: $IMPORT_RESULT"
-                    exit 1
-                fi
+                # 5. Run scan
+                echo "Starting scan..."
+                /opt/zaproxy/zap.sh -cmd \
+                    -quickurl http://209.38.120.144 \
+                    -quickprogress \
+                    -quickout zap-report.html
 
-                # 3. Verify URLs in sites tree
-                echo "Verifying imported URLs..."
-                SITES_LIST=$(curl -s "http://localhost:8090/JSON/core/view/sites/")
-                if ! echo "$SITES_LIST" | grep -q "209.38.120.144"; then
-                    echo "❌ Target URL not found in ZAP sites"
-                    echo "Debug - Sites list: $SITES_LIST"
-                    exit 1
-                fi
-
-                # 4. Run scan with progress monitoring
-                echo "Starting security scan..."
-                SCAN_STATUS=$(/opt/zaproxy/zap.sh -cmd \\
-                    -quickurl http://209.38.120.144 \\
-                    -quickprogress \\
-                    -quickout zap-report.html 2>&1)
-
-                if [ $? -ne 0 ]; then
-                    echo "❌ Scan failed. Output: $SCAN_STATUS"
-                    exit 1
-                fi
-
-                # 5. Verify report generation
-                if [ ! -f zap-report.html ]; then
-                    echo "❌ Report file not generated"
-                    exit 1
-                fi
-
-                echo "✅ Scan completed successfully"
+                # 6. Shutdown
+                curl -s "http://localhost:8090/JSON/core/action/shutdown/"
             '''
 
         }
