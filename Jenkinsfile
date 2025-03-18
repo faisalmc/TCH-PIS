@@ -88,17 +88,17 @@ pipeline {
             // Print the job name for verification
             sh 'echo JOB_NAME: $JOB_NAME'
 
-            // Run ZAP scan on port 8090
-            sh '''
-            /opt/zaproxy/zap.sh -cmd \
-                -host 0.0.0.0 \
-                -port 8090 \
-                -quickurl http://209.38.120.144:3000 \
-                -quickurl http://209.38.120.144:3001 \
-                -quickurl http://209.38.120.144:3002 \
-                -quickout "/var/lib/jenkins/workspace/${JOB_NAME}/zap-report.html" \
+               // Run ZAP scan on port 8090
+            sh """
+            /opt/zaproxy/zap.sh -cmd \\
+                -host 0.0.0.0 \\
+                -port 8090 \\
+                -quickurl http://209.38.120.144:3000 \\
+                -quickurl http://209.38.120.144:3001 \\
+                -quickurl http://209.38.120.144:3002 \\
+                -quickout zap-report.html \\
                 -quickprogress || true
-            '''
+            """
         }
     }
         }
@@ -108,7 +108,7 @@ pipeline {
         always {
             script {
                 // Archive the ZAP report
-                archiveArtifacts artifacts: '/var/lib/jenkins/workspace/${JOB_NAME}/zap-report.html', allowEmptyArchive: true
+                archiveArtifacts "zap-report.html"
                 
                 sh '''
                 docker stop tch-pis-container                 
