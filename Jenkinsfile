@@ -85,52 +85,56 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
         script {
-                      sh '''
-                # 0. Create unique workspace directory
-                ZAP_DIR=$(mktemp -d)
-                echo "Using ZAP home directory: ${ZAP_DIR}"
+                     sh '''
+                # 0. Verify prerequisites
+                if [ ! -f postman-collection.json ]; then
+                    echo "❌ Missing postman-collection.json"
+                    exit 1
+                fi
 
-                # 1. Install latest Postman add-on explicitly
+                # 1. Create unique ZAP home directory
+                ZAP_HOME=$(mktemp -d)
+                echo "Using ZAP home directory: ${ZAP_HOME}"
+
+                # 2. Kill any existing ZAP instances
+                pkill -f "zap.sh" || true
+                sleep 2
+
+                # 3. Install add-ons first
                 /opt/zaproxy/zap.sh -cmd \
+                    -addoninstall importexport \
                     -addoninstall postman \
                     -addonupdate -nostart
 
-                # 2. Start ZAP with unique directory and increased memory
+                # 4. Start ZAP with unique home directory
+                echo "Starting ZAP daemon..."
                 /opt/zaproxy/zap.sh -daemon -port 8090 \
+                    -dir "${ZAP_HOME}" \
                     -config api.disablekey=true \
-                    -dir "${ZAP_DIR}" \
-                    -config database.recoverylog=false \
-                    -J"-Xmx2048m" &
-
-                # 3. Wait for ZAP initialization with verification
-                echo "Waiting for ZAP to start..."
-                curl --retry 10 --retry-delay 5 --max-time 3 http://localhost:8090 || {
-                    echo "❌ ZAP failed to start"
+                    -config database.recoverylog=false &
+                
+                # 5. Wait for startup
+                echo "Waiting for ZAP initialization..."
+                curl --retry 6 --retry-delay 10 --max-time 5 http://localhost:8090 || {
+                    echo "❌ ZAP API not responding"
                     exit 1
                 }
 
-                # 4. Import collection using correct format
-                echo "Importing Postman collection..."
-                IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importFile/" \
-                    -F "file=@postman-collection.json")
+                # 6. Import Postman collection
+                echo "Importing collection..."
+                curl -X POST "http://localhost:8090/JSON/postman/action/importCollection/" \
+                    -F "file=@postman-collection.json" \
+                    -F "url=http://209.38.120.144"
 
-                if ! echo "${IMPORT_RESULT}" | grep -q '"Result":"OK"'; then
-                    echo "❌ Collection import failed. Response: ${IMPORT_RESULT}"
-                    exit 1
-                fi
-
-                # 5. Run scan with unique output file
-                echo "Starting security scan..."
+                # 7. Run scan
+                echo "Starting scan..."
                 /opt/zaproxy/zap.sh -cmd \
                     -quickurl http://209.38.120.144 \
                     -quickprogress \
-                    -quickout "${WORKSPACE}/zap-report.html"
+                    -quickout zap-report.html
 
-                # 6. Verify report generation
-                if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
-                    echo "❌ Report file not generated"
-                    exit 1
-                fi
+                # 8. Shutdown
+                curl -s "http://localhost:8090/JSON/core/action/shutdown/"
             '''
 
         }
