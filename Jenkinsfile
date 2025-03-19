@@ -97,17 +97,17 @@ pipeline {
 
                         # 3. Install required add-ons
                         echo "##[section] Installing ZAP add-ons..."
-                        /opt/zaproxy/zap.sh -cmd \
-                            -addoninstall postman \
-                            -addoninstall openapi \
+                        /opt/zaproxy/zap.sh -cmd \\
+                            -addoninstall postman \\
+                            -addoninstall openapi \\
                             -addonupdate -nostart
 
                         # 4. Start ZAP with proper configuration
                         echo "##[section] Starting ZAP daemon..."
-                        /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \
-                            -dir "${ZAP_HOME}" \
-                            -config api.disablekey=true \
-                            -config database.recoverylog=false \
+                        /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \\
+                            -dir "${ZAP_HOME}" \\
+                            -config api.disablekey=true \\
+                            -config database.recoverylog=false \\
                             -J"-Xmx2048m" > "${ZAP_HOME}/zap.log" 2>&1 &
 
                         # 5. Wait for startup with enhanced verification
@@ -119,11 +119,11 @@ pipeline {
                                 attempt=$((attempt+1))
                                 echo "##[debug] Startup attempt ${attempt}/60"
                                 
-                                # Check for errors in logs
-                                if grep -q "ERROR\|Exception" "${ZAP_HOME}/zap.log"; then
+                                # Check for errors in logs (fixed escaping)
+                                if grep -q "ERROR\\|Exception" "${ZAP_HOME}/zap.log"; then
                                     echo "##[error] ZAP startup error detected"
                                     echo "Last error lines:"
-                                    grep "ERROR\|Exception" "${ZAP_HOME}/zap.log" | tail -5
+                                    grep "ERROR\\|Exception" "${ZAP_HOME}/zap.log" | tail -5
                                     exit 1
                                 fi
                             done'
@@ -141,7 +141,7 @@ pipeline {
 
                         # 7. Import Postman collection
                         echo "##[section] Importing Postman collection..."
-                        IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importFile/" \
+                        IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importFile/" \\
                             -F "file=@postman-collection.json")
                         
                         if ! echo "${IMPORT_RESULT}" | grep -q '"Result":"OK"'; then
@@ -152,9 +152,9 @@ pipeline {
 
                         # 8. Run security scan
                         echo "##[section] Starting security scan..."
-                        /opt/zaproxy/zap.sh -cmd \
-                            -quickurl http://209.38.120.144 \
-                            -quickprogress \
+                        /opt/zaproxy/zap.sh -cmd \\
+                            -quickurl http://209.38.120.144 \\
+                            -quickprogress \\
                             -quickout "${WORKSPACE}/zap-report.html"
 
                         # 9. Verify report generation
