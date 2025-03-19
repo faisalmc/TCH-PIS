@@ -103,19 +103,14 @@ pipeline {
             curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
             curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
 
+            #API'S SECURITY SCAN:
+            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000/auth/register
+            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000/auth/login
             
-            # Extract and scan endpoints from Postman collection
-            # Parse the Postman collection to extract URLs
-            ENDPOINTS=$(cat postman-collection.json | grep -o '"url": "[^"]*"' | cut -d'"' -f4)
-            
-            # Scan each endpoint with ZAP
-            for endpoint in $ENDPOINTS; do
-                echo "Scanning endpoint: $endpoint"
-                curl "http://localhost:8090/JSON/core/action/accessUrl/?url=$endpoint"
-            done
+
             
             # Wait for passive scanning to complete
-            sleep 60
+            sleep 30
             
             # Generate HTML report
             curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
