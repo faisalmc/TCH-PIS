@@ -85,32 +85,33 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
         script {
-                                     sh '''
-                    # 1. Clean environment setup
-                    ZAP_HOME=$(mktemp -d)
-                    echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
-                    
-                    # 2. Force-clean previous instances
-                    echo "##[section] Cleaning previous ZAP instances..."
-                    pkill -9 -f "zap.sh" || true
-                    sleep 5
-                    
-                    # 3. Run ZAP with Postman collection
-                    echo "##[section] Starting ZAP scan..."
-                    /opt/zaproxy/zap.sh -cmd \\
--config api.disablekey=true \\
--config database.recoverylog=false \\
--config scanner.attackStrength=HIGH \\
--postmanfile "${WORKSPACE}/postman-collection.json" \\
--quickout "${WORKSPACE}/zap-report.html" \\
--quickprogress
-                    
-                    # 4. Verify report generation
-                    if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
-                        echo "##[error] Report file missing"
-                        exit 1
-                    fi
-                    '''
+                                   sh '''
+                        # 1. Clean environment setup
+                        ZAP_HOME=$(mktemp -d)
+                        echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
+                        
+                        # 2. Force-clean previous instances
+                        echo "##[section] Cleaning previous ZAP instances..."
+                        pkill -9 -f "zap.sh" || true
+                        sleep 5
+
+                        # 3. Run ZAP with Postman collection
+                        echo "##[section] Starting ZAP scan..."
+                        /opt/zaproxy/zap.sh -cmd \\
+                    -config api.disablekey=true \\
+                    -config database.recoverylog=false \\
+                    -config scanner.attackStrength=HIGH \\
+                    -addoninstall ascanrules \\
+                    -openapifile "${WORKSPACE}/openapi1.yaml" \\
+                    -quickprogress \\
+                    -quickout "${WORKSPACE}/zap-report.html"
+
+                        # 4. Verify report generation
+                        if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
+                            echo "##[error] Report file missing"
+                            exit 1
+                        fi
+                    '''`
         }
     }
         }
