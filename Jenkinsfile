@@ -90,14 +90,17 @@ pipeline {
 
             sh '''
         /opt/zaproxy/zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true &
-        
+        sleep 30
 
         # Access target URLs
         curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000"
         curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
         curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
 
-        # Wait 
+
+
+
+        # Wait for active scans to complete (adjust time based on application size)
         sleep 30
 
         # Generate report
