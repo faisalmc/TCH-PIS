@@ -98,20 +98,22 @@ pipeline {
                         # 3. Run ZAP with Postman collection
                         echo "##[section] Starting ZAP scan..."
                         /opt/zaproxy/zap.sh -cmd \\
-                    -config api.disablekey=true \\
-                    -config database.recoverylog=false \\
-                    -config scanner.attackStrength=HIGH \\
-                    -addoninstall ascanrules \\
-                    -openapifile "${WORKSPACE}/api-spec.yaml" \\
-                    -quickprogress \\
-                    -quickout "${WORKSPACE}/zap-report.html"
+                            -config api.disablekey=true \\
+                            -config database.recoverylog=false \\
+                            -config client.integration.enabled=false \\
+                            -quickurl http://209.38.120.144:3000 \\
+                            -quickurl http://209.38.120.144:3001 \\
+                            -quickurl http://209.38.120.144:3002 \\
+                            -quickprogress \\
+                            -quickout "${WORKSPACE}/zap-report.html" \\
+                            -postmanfile "${WORKSPACE}/postman-collection.json"
 
                         # 4. Verify report generation
                         if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
                             echo "##[error] Report file missing"
                             exit 1
                         fi
-                    '''
+                    '''`
         }
     }
         }
