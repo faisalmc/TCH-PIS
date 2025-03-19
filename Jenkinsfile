@@ -101,6 +101,7 @@ pipeline {
                             -config api.disablekey=true \\
                             -config database.recoverylog=false \\
                             -config client.integration.enabled=false \\
+                            -config scan.policy=Default Policy \\
                             -quickurl http://209.38.120.144 \\
                             -quickprogress \\
                             -quickout "${WORKSPACE}/zap-report.html" \\
@@ -111,6 +112,13 @@ pipeline {
                             echo "##[error] Report file missing"
                             exit 1
                         fi
+
+                        # 5. Check for vulnerabilities in the report
+if grep -q "High\|Medium" "${WORKSPACE}/zap-report.html"; then
+    echo "##[warning] High/Medium vulnerabilities detected. Check the report for details."
+else
+    echo "##[section] No High/Medium vulnerabilities found."
+fi
                     '''
         }
     }
