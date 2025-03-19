@@ -86,6 +86,14 @@ pipeline {
             steps {
         script {
                       sh '''
+                      # 1. Install Firefox dependency
+                        sudo apt-get update
+                        sudo apt-get install -y firefox
+
+                        # 2. Configure Firefox path for ZAP
+                        export MOZ_HEADLESS=1
+                        export PATH="/usr/lib/firefox:${PATH}"
+                        
                         # 1. Clean environment setup
                         export ZAP_HOME=$(mktemp -d)
                         echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
