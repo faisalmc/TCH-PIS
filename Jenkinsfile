@@ -114,7 +114,7 @@ pipeline {
                         fi
 
                         # 5. Check for vulnerabilities in the report
-if grep -q "High\|Medium" "${WORKSPACE}/zap-report.html"; then
+if grep -q "High\\ |Medium" "${WORKSPACE}/zap-report.html"; then
     echo "##[warning] High/Medium vulnerabilities detected. Check the report for details."
 else
     echo "##[section] No High/Medium vulnerabilities found."
