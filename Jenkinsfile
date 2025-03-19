@@ -103,27 +103,16 @@ pipeline {
             curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
             curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
 
-#API'S SECURITY SCAN:
-# For register endpoint with the correct request body
-curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" \
-  -d 'request={
-    "method": "POST",
-    "url": "http://209.38.120.144:3000/auth/register",
-    "headers": {"Content-Type": "application/json"},
-    "body": "{\\"username\\": \\"user_5pzl6x\\",\\"password\\": \\"^nOeCQOG2aC!\\",\\"role\\": \\"clerk\\"}"
-  }'
+# API'S SECURITY SCAN - Using a different approach with fewer escaping issues
+echo '{"method":"POST","url":"http://209.38.120.144:3000/auth/register","headers":{"Content-Type":"application/json"},"body":"{\"username\": \"user_5pzl6x\",\"password\": \"^nOeCQOG2aC!\",\"role\": \"clerk\"}"}' > register_request.json
+echo '{"method":"POST","url":"http://209.38.120.144:3000/auth/login","headers":{"Content-Type":"application/json"},"body":"{\"username\": \"testdocteoq21r\",\"password\": \"testpas21eswqored12\"}"}' > login_request.json
 
-# For login endpoint with the correct request body
-curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" \
-  -d 'request={
-    "method": "POST",
-    "url": "http://209.38.120.144:3000/auth/login",
-    "headers": {"Content-Type": "application/json"},
-    "body": "{\\"username\\": \\"testdocteoq21r\\",\\"password\\": \\"testpas21eswqored12\\"}"
-  }'
+# Send the requests using the files to avoid escaping issues
+curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" -H "Content-Type: application/json" --data @register_request.json
+curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" -H "Content-Type: application/json" --data @login_request.json
 
-        # Also run the spider on the base URLs to discover more endpoints
-            curl "http://localhost:8090/JSON/spider/action/scan/?url=http://209.38.120.144:3000"
+# Add an active scan after the spider for more thorough testing
+curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000"
             
             # Wait for passive scanning to complete
             sleep 90
