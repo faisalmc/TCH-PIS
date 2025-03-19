@@ -113,7 +113,7 @@ pipeline {
                             echo "##[error] Report file missing"
                             exit 1
                         fi
-                    '''`
+                    '''
         }
     }
         }
