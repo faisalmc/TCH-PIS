@@ -102,7 +102,7 @@ pipeline {
                     -config database.recoverylog=false \\
                     -config scanner.attackStrength=HIGH \\
                     -addoninstall ascanrules \\
-                    -openapifile "${WORKSPACE}/openapi1.yaml" \\
+                    -openapifile "${WORKSPACE}/api-spec.yaml" \\
                     -quickprogress \\
                     -quickout "${WORKSPACE}/zap-report.html"
 
@@ -111,7 +111,7 @@ pipeline {
                             echo "##[error] Report file missing"
                             exit 1
                         fi
-                    '''`
+                    '''
         }
     }
         }
