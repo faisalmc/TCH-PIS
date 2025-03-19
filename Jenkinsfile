@@ -109,18 +109,24 @@ pipeline {
 
                         # 5. Wait for startup with log monitoring
                         echo "Waiting for ZAP to start..."
-                        timeout 180 bash -c '
-                            while ! grep "ZAP is now listening" "${ZAP_HOME}/zap.log"; do
+                        timeout 300 bash -c '
+                            until curl -s http://localhost:8090; do
                                 sleep 5
-                                echo "Startup progress: $(grep "org.parosproxy.paros.network.SSLConnector" "${ZAP_HOME}/zap.log" | tail -1)"
+                                echo "Checking ZAP API status..."
+                                if grep -q "ERROR\|Exception" "${ZAP_HOME}/zap.log"; then
+                                    echo "ZAP startup error detected"
+                                    exit 1
+                                fi
                             done'
 
                         # 6. Verify API connection
-                        curl -s http://localhost:8090 || {
-                            echo "ZAP startup failed. Last logs:"
-                            tail -100 "${ZAP_HOME}/zap.log"
+                         API_VERSION=$(curl -s http://localhost:8090/JSON/core/view/version)
+                        if [ -z "$API_VERSION" ]; then
+                            echo "ZAP API verification failed. Logs:"
+                            cat "${ZAP_HOME}/zap.log"
                             exit 1
-                        }
+                        fi
+
 
                         # 7. Import Postman collection (correct endpoint)
                         echo "Importing Postman collection..."
