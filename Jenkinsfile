@@ -86,7 +86,7 @@ pipeline {
             steps {
         script {
                                      sh '''
-         # 1. Clean environment setup
+        # 1. Clean environment setup
                         ZAP_HOME=$(mktemp -d)
                         echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
                         
@@ -95,42 +95,19 @@ pipeline {
                         pkill -9 -f "zap.sh" || true
                         sleep 5
 
-                        # 3. Start ZAP without browser integration
-                        echo "##[section] Starting ZAP daemon..."
-                        /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \\
-                            -dir "${ZAP_HOME}" \\
+                        # 3. Run ZAP in CLI mode with Postman collection
+                        echo "##[section] Starting ZAP scan..."
+                        /opt/zaproxy/zap.sh -cmd \\
                             -config api.disablekey=true \\
                             -config database.recoverylog=false \\
                             -config client.integration.enabled=false \\
-                            -J"-Xmx2048m" > "${ZAP_HOME}/zap.log" 2>&1 &
-
-                        # 4. Wait for startup
-                        echo "##[section] Waiting for ZAP initialization..."
-                        timeout 120 bash -c '
-                            while ! curl -s http://localhost:8090 >/dev/null; do
-                                sleep 5
-                                echo "Checking ZAP status..."
-                            done'
-
-                        # 5. Import Postman collection
-                        echo "##[section] Importing Postman collection..."
-                        IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importFile/" \\
-                            -F "file=@postman-collection.json")
-                        
-                        if ! echo "${IMPORT_RESULT}" | grep -q '"Result":"OK"'; then
-                            echo "##[error] Postman import failed"
-                            echo "##[debug] Response: ${IMPORT_RESULT}"
-                            exit 1
-                        fi
-
-                        # 6. Run security scan
-                        echo "##[section] Starting security scan..."
-                        /opt/zaproxy/zap.sh -cmd \\
                             -quickurl http://209.38.120.144 \\
                             -quickprogress \\
-                            -quickout "${WORKSPACE}/zap-report.html"
+                            -quickout "${WORKSPACE}/zap-report.html" \\
+                            -script "/zap/scripts/import-postman.js" \\
+                            -scriptargs "postman-collection.json"
 
-                        # 7. Verify report generation
+                        # 4. Verify report generation
                         if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
                             echo "##[error] Report file missing"
                             exit 1
