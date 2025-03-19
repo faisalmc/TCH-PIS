@@ -112,12 +112,12 @@ pipeline {
         curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" -H "Content-Type: application/json" --data @login_request.json
 
         # Start active scans with increased scan policy
-        curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000&scanPolicyName=Default Policy&recurse=true"
-        curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3001&scanPolicyName=Default Policy&recurse=true"
-        curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3002&scanPolicyName=Default Policy&recurse=true"
+curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000\&scanPolicyName=Default%20Policy\&recurse=true"
+   curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3001\&scanPolicyName=Default%20Policy\&recurse=true"
+        curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3002\&scanPolicyName=Default%20Policy\&recurse=true"
 
         # Wait for active scans to complete (adjust time based on application size)
-        sleep 600  # 10 minutes for active scanning
+        sleep 90  # 10 minutes for active scanning
 
         # Generate report
         curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
