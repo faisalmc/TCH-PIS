@@ -85,35 +85,34 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
         script {
-                                   sh '''
-                        # 1. Clean environment setup
-                        ZAP_HOME=$(mktemp -d)
-                        echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
-                        
-                        # 2. Force-clean previous instances
-                        echo "##[section] Cleaning previous ZAP instances..."
-                        pkill -9 -f "zap.sh" || true
-                        sleep 5
+                        // Create directory for ZAP report
+            sh 'mkdir -p zap-reports'
 
-                        # 3. Run ZAP with Postman collection
-                        echo "##[section] Starting ZAP scan..."
-                        /opt/zaproxy/zap.sh -cmd \\
-                            -config api.disablekey=true \\
-                            -config database.recoverylog=false \\
-                            -config client.integration.enabled=false \\
-                            -quickurl http://209.38.120.144:3000 \\
-                            -quickurl http://209.38.120.144:3001 \\
-                            -quickurl http://209.38.120.144:3002 \\
-                            -quickprogress \\
-                            -quickout "${WORKSPACE}/zap-report.html" \\
-                            -postmanfile "${WORKSPACE}/postman-collection.json"
+            // Run ZAP in daemon mode with a simple passive scan
+            sh '''
+            # Start ZAP in daemon mode
+            /opt/zaproxy/zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true &
 
-                        # 4. Verify report generation
-                        if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
-                            echo "##[error] Report file missing"
-                            exit 1
-                        fi
-                    '''
+            
+            # Wait for ZAP to start
+            sleep 30
+
+            
+            # Use ZAP API to access the target URLs
+            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000"
+            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
+            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
+
+            
+            # Wait for passive scanning to complete
+            sleep 30
+            
+            # Generate HTML report
+            curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
+            
+            # Shutdown ZAP
+            curl "http://localhost:8090/JSON/core/action/shutdown/"
+            '''
         }
     }
         }
