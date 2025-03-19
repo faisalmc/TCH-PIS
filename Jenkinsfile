@@ -93,48 +93,24 @@ pipeline {
                         # 2. Configure Firefox path for ZAP
                         export MOZ_HEADLESS=1
                         export PATH="/usr/lib/firefox:${PATH}"
-                        
-                        # 1. Clean environment setup
+
+                        # 3. Clean environment setup
                         export ZAP_HOME=$(mktemp -d)
                         echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
                         
-                        # 2. Force-clean previous instances
+                        # 4. Force-clean previous instances
                         echo "##[section] Cleaning previous ZAP instances..."
                         pkill -9 -f "zap.sh" || true
                         sleep 5
 
-                        # 3. Install required add-ons
-                        echo "##[section] Installing ZAP add-ons..."
-                        /opt/zaproxy/zap.sh -cmd \\
-                            -addoninstall postman \\
-                            -addoninstall openapi \\
-                            -addonupdate -nostart
-
-                        # 4. Start ZAP with proper configuration
+                        # 5. Start ZAP with Firefox configuration
                         echo "##[section] Starting ZAP daemon..."
                         /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \\
                             -dir "${ZAP_HOME}" \\
                             -config api.disablekey=true \\
                             -config database.recoverylog=false \\
+                            -config client.firefox.path="/usr/lib/firefox/firefox" \\
                             -J"-Xmx2048m" > "${ZAP_HOME}/zap.log" 2>&1 &
-
-                        # 5. Wait for startup with enhanced verification
-                        echo "##[section] Waiting for ZAP initialization..."
-                        timeout 300 bash -c '
-                            attempt=0
-                            until curl -s http://localhost:8090; do
-                                sleep 5
-                                attempt=$((attempt+1))
-                                echo "##[debug] Startup attempt ${attempt}/60"
-                                
-                                # Check for errors in logs (fixed escaping)
-                                if grep -q "ERROR\\|Exception" "${ZAP_HOME}/zap.log"; then
-                                    echo "##[error] ZAP startup error detected"
-                                    echo "Last error lines:"
-                                    grep "ERROR\\|Exception" "${ZAP_HOME}/zap.log" | tail -5
-                                    exit 1
-                                fi
-                            done'
 
                         # 6. Verify API functionality
                         echo "##[section] Verifying ZAP API..."
