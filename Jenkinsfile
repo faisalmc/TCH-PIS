@@ -86,33 +86,32 @@ pipeline {
             steps {
         script {
                                      sh '''
-        # 1. Clean environment setup
-                        ZAP_HOME=$(mktemp -d)
-                        echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
-                        
-                        # 2. Force-clean previous instances
-                        echo "##[section] Cleaning previous ZAP instances..."
-                        pkill -9 -f "zap.sh" || true
-                        sleep 5
-
-                        # 3. Run ZAP in CLI mode with Postman collection
-                        echo "##[section] Starting ZAP scan..."
-                        /opt/zaproxy/zap.sh -cmd \\
-                            -config api.disablekey=true \\
-                            -config database.recoverylog=false \\
-                            -config client.integration.enabled=false \\
-                            -quickurl http://209.38.120.144 \\
-                            -zapit http://209.38.120.144 \\
-                            -quickprogress \\
-                            -quickout "${WORKSPACE}/zap-report.html" \\
-                            -script "/zap/scripts/import-postman.js" \\
-                            -scriptargs "postman-collection.json"
-
-                        # 4. Verify report generation
-                        if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
-                            echo "##[error] Report file missing"
-                            exit 1
-                        fi
+                    # 1. Clean environment setup
+                    ZAP_HOME=$(mktemp -d)
+                    echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
+                    
+                    # 2. Force-clean previous instances
+                    echo "##[section] Cleaning previous ZAP instances..."
+                    pkill -9 -f "zap.sh" || true
+                    sleep 5
+                    
+                    # 3. Run ZAP with Postman collection
+                    echo "##[section] Starting ZAP scan..."
+                    /opt/zaproxy/zap.sh -cmd \\
+                    -config api.disablekey=true \\
+                    -config database.recoverylog=false \\
+                    -config client.integration.enabled=false \\
+                    -quickurl http://209.38.120.144 \\
+                    -zapit http://209.38.120.144 \\
+                    -quickprogress \\
+                    -quickout "${WORKSPACE}/zap-report.html" \\
+                    -postmanfile "${WORKSPACE}/postman-collection.json"
+                    
+                    # 4. Verify report generation
+                    if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
+                        echo "##[error] Report file missing"
+                        exit 1
+                    fi
                     '''
         }
     }
