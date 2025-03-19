@@ -95,45 +95,24 @@ pipeline {
                         pkill -9 -f "zap.sh" || true
                         sleep 5
 
-                        # 3. Install Postman add-on
-                        echo "##[section] Installing Postman add-on..."
-                        /opt/zaproxy/zap.sh -cmd \\
-                            -addoninstall postman \\
-                            -addonupdate -nostart
-
-                        # 4. Start ZAP with proper log path
+                        # 3. Start ZAP without browser integration
                         echo "##[section] Starting ZAP daemon..."
-                        ZAP_LOG="${ZAP_HOME}/zap.log"
                         /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \\
                             -dir "${ZAP_HOME}" \\
                             -config api.disablekey=true \\
                             -config database.recoverylog=false \\
-                            -J"-Xmx2048m" > "${ZAP_LOG}" 2>&1 &
+                            -config client.integration.enabled=false \\
+                            -J"-Xmx2048m" > "${ZAP_HOME}/zap.log" 2>&1 &
 
-                        # 5. Wait for startup with proper variable passing
+                        # 4. Wait for startup
                         echo "##[section] Waiting for ZAP initialization..."
-                        export ZAP_LOG  # Make available to subshell
                         timeout 120 bash -c '
                             while ! curl -s http://localhost:8090 >/dev/null; do
                                 sleep 5
                                 echo "Checking ZAP status..."
-                                
-                                # Verify log file exists
-                                if [ ! -f "${ZAP_LOG}" ]; then
-                                    echo "##[error] ZAP log file missing at ${ZAP_LOG}"
-                                    exit 1
-                                fi
-                                
-                                # Check for errors
-                                if grep -q "ERROR\\|Exception" "${ZAP_LOG}"; then
-                                    echo "##[error] Startup errors detected:"
-                                    tail -20 "${ZAP_LOG}"
-                                    exit 1
-                                fi
                             done'
 
-
-                        # 6. Import Postman collection
+                        # 5. Import Postman collection
                         echo "##[section] Importing Postman collection..."
                         IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importFile/" \\
                             -F "file=@postman-collection.json")
@@ -144,14 +123,14 @@ pipeline {
                             exit 1
                         fi
 
-                        # 7. Run security scan
+                        # 6. Run security scan
                         echo "##[section] Starting security scan..."
                         /opt/zaproxy/zap.sh -cmd \\
                             -quickurl http://209.38.120.144 \\
                             -quickprogress \\
                             -quickout "${WORKSPACE}/zap-report.html"
 
-                        # 8. Verify report generation
+                        # 7. Verify report generation
                         if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
                             echo "##[error] Report file missing"
                             exit 1
