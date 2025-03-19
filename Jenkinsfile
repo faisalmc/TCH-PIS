@@ -103,6 +103,10 @@ pipeline {
                     -config client.integration.enabled=false \\
                     -quickurl http://209.38.120.144 \\
                     -zapit http://209.38.120.144 \\
+                    -config scanner.attackStrength=HIGH \
+                    -spider http://209.38.120.144:3000/auth/register \\
+                    -spider http://209.38.120.144:3001/patients/register \\
+                    -spider http://209.38.120.144:3002/api/treatment/diagnosis \\
                     -quickprogress \\
                     -quickout "${WORKSPACE}/zap-report.html" \\
                     -postmanfile "${WORKSPACE}/postman-collection.json"
