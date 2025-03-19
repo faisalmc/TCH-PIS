@@ -86,57 +86,65 @@ pipeline {
             steps {
         script {
                      sh '''
-                # 0. Verify prerequisites
-                if [ ! -f postman-collection.json ]; then
-                    echo "❌ Missing postman-collection.json"
-                    exit 1
-                fi
+                        # 1. Clean environment setup
+                        export ZAP_HOME=$(mktemp -d)
+                        echo "Using temporary ZAP home: ${ZAP_HOME}"
+                        
+                        # 2. Force-clean previous instances
+                        pkill -9 -f "zap.sh" || true
+                        sleep 5
 
-                # 1. Create unique ZAP home directory
-                ZAP_HOME=$(mktemp -d)
-                echo "Using ZAP home directory: ${ZAP_HOME}"
+                        # 3. Install required add-ons (correct names)
+                        /opt/zaproxy/zap.sh -cmd \
+                            -addoninstall postman \
+                            -addoninstall openapi \
+                            -addonupdate -nostart
 
-                # 2. Kill any existing ZAP instances
-                pkill -f "zap.sh" || true
-                sleep 2
+                        # 4. Start ZAP with proper configuration
+                        /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \
+                            -dir "${ZAP_HOME}" \
+                            -config api.disablekey=true \
+                            -config database.recoverylog=false \
+                            -J"-Xmx2048m" > "${ZAP_HOME}/zap.log" 2>&1 &
 
-                # 3. Install add-ons first
-                /opt/zaproxy/zap.sh -cmd \
-                    -addoninstall importexport \
-                    -addoninstall postman \
-                    -addonupdate -nostart
+                        # 5. Wait for startup with log monitoring
+                        echo "Waiting for ZAP to start..."
+                        timeout 180 bash -c '
+                            while ! grep "ZAP is now listening" "${ZAP_HOME}/zap.log"; do
+                                sleep 5
+                                echo "Startup progress: $(grep "org.parosproxy.paros.network.SSLConnector" "${ZAP_HOME}/zap.log" | tail -1)"
+                            done'
 
-                # 4. Start ZAP with unique home directory
-                echo "Starting ZAP daemon..."
-                /opt/zaproxy/zap.sh -daemon -port 8090 \
-                    -dir "${ZAP_HOME}" \
-                    -config api.disablekey=true \
-                    -config database.recoverylog=false &
-                
-                # 5. Wait for startup
-                echo "Waiting for ZAP initialization..."
-                curl --retry 6 --retry-delay 10 --max-time 5 http://localhost:8090 || {
-                    echo "❌ ZAP API not responding"
-                    exit 1
-                }
+                        # 6. Verify API connection
+                        curl -s http://localhost:8090 || {
+                            echo "ZAP startup failed. Last logs:"
+                            tail -100 "${ZAP_HOME}/zap.log"
+                            exit 1
+                        }
 
-                # 6. Import Postman collection
-                echo "Importing collection..."
-                curl -X POST "http://localhost:8090/JSON/postman/action/importCollection/" \
-                    -F "file=@postman-collection.json" \
-                    -F "url=http://209.38.120.144"
+                        # 7. Import Postman collection (correct endpoint)
+                        echo "Importing Postman collection..."
+                        IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importFile/" \
+                            -F "file=@postman-collection.json")
+                        
+                        if ! echo "${IMPORT_RESULT}" | grep -q '"Result":"OK"'; then
+                            echo "Postman import failed. Response: ${IMPORT_RESULT}"
+                            exit 1
+                        fi
 
-                # 7. Run scan
-                echo "Starting scan..."
-                /opt/zaproxy/zap.sh -cmd \
-                    -quickurl http://209.38.120.144 \
-                    -quickprogress \
-                    -quickout zap-report.html
+                        # 8. Run security scan
+                        echo "Starting security scan..."
+                        /opt/zaproxy/zap.sh -cmd \
+                            -quickurl http://209.38.120.144 \
+                            -quickprogress \
+                            -quickout "${WORKSPACE}/zap-report.html"
 
-                # 8. Shutdown
-                curl -s "http://localhost:8090/JSON/core/action/shutdown/"
-            '''
-
+                        # 9. Verify report generation
+                        if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
+                            echo "Report file missing"
+                            exit 1
+                        fi
+                    '''
         }
     }
         }
