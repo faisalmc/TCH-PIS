@@ -39,6 +39,41 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
+                    // Install/update Node.js to a compatible version
+                    sh '''
+                    # Print current Node.js version
+                    echo "Current Node.js version:"
+                    node -v || echo "Node.js not found"
+                
+                    # Install NVM
+                    export NVM_DIR="$HOME/.nvm" || mkdir -p "$HOME/.nvm"
+                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+                
+                    # Load NVM and install Node.js 16
+                    . "$HOME/.nvm/nvm.sh"
+                    nvm install 16
+                    nvm use 16
+                
+                    # Verify Node.js version
+                    echo "Updated Node.js version:"
+                    node -v
+                
+                    # Run SonarQube with the updated Node.js version
+                    /opt/sonar-scanner/bin/sonar-scanner \
+                    -Dsonar.projectKey=TCH-PIS \
+                    -Dsonar.projectName=TCH-PIS \
+                    -Dsonar.projectVersion=1.0 \
+                    -Dsonar.sources=services \
+                    -Dsonar.language=js \
+                    -Dsonar.host.url=http://209.38.120.144:9000 \
+                    -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e
+                    '''
+                }
+            }
+        }
+
+            steps {
+                script {
                     // Run SonarQube scan using the absolute path to sonar-scanner
                     sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectKey=TCH-PIS -Dsonar.projectName=TCH-PIS -Dsonar.projectVersion=1.0 -Dsonar.sources=services -Dsonar.language=js -Dsonar.host.url=http://209.38.120.144:9000 -Dsonar.login=squ_7cfa9c7d2e750c8eed27046bea9b2a8c0009235e"
                 }
