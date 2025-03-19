@@ -149,8 +149,8 @@ pipeline {
             '''
                 
                 sh '''
-                docker stop tch-pis-container                 
-                docker rm tch-pis-container
+                docker stop tch-pis                 
+                docker rm tch-pis
                 '''
             }
         }
