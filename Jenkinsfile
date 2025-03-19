@@ -90,34 +90,15 @@ pipeline {
 
             sh '''
         /opt/zaproxy/zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.disablekey=true &
-        sleep 30
+        
 
         # Access target URLs
         curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000"
         curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
         curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
 
-        # Spider targets first (recommended for active scanning)
-        curl "http://localhost:8090/JSON/spider/action/scan/?url=http://209.38.120.144:3000"
-        curl "http://localhost:8090/JSON/spider/action/scan/?url=http://209.38.120.144:3001"
-        curl "http://localhost:8090/JSON/spider/action/scan/?url=http://209.38.120.144:3002"
-        sleep 60  # Wait for spidering
-
-        # Prepare API requests
-        echo '{"method":"POST","url":"http://209.38.120.144:3000/auth/register","headers":{"Content-Type":"application/json"},"body":"{\\"username\\": \\"user_5pzl6x\\",\\"password\\": \\"^nOeCQOG2aC!\\",\\"role\\": \\"clerk\\"}"}' > register_request.json
-        echo '{"method":"POST","url":"http://209.38.120.144:3000/auth/login","headers":{"Content-Type":"application/json"},"body":"{\\"username\\": \\"testdocteoq21r\\",\\"password\\": \\"testpas21eswqored12\\"}"}' > login_request.json
-
-        # Send requests
-        curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" -H "Content-Type: application/json" --data @register_request.json
-        curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" -H "Content-Type: application/json" --data @login_request.json
-
-        # Start active scans with increased scan policy
-curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000\\&scanPolicyName=Default%20Policy\\&recurse=true"
-   curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3001\\&scanPolicyName=Default%20Policy\\&recurse=true"
-        curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3002\\&scanPolicyName=Default%20Policy\\&recurse=true"
-
-        # Wait for active scans to complete (adjust time based on application size)
-        sleep 90  # 10 minutes for active scanning
+        # Wait 
+        sleep 30
 
         # Generate report
         curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
