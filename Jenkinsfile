@@ -86,7 +86,7 @@ pipeline {
             steps {
         script {
                                      sh '''
-                    # 1. Clean environment setup
+         # 1. Clean environment setup
                         ZAP_HOME=$(mktemp -d)
                         echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
                         
