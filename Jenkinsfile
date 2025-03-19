@@ -85,61 +85,73 @@ pipeline {
         stage('Security Testing with OWASP ZAP') {
             steps {
         script {
-                     sh '''
+                      sh '''
                         # 1. Clean environment setup
                         export ZAP_HOME=$(mktemp -d)
-                        echo "Using temporary ZAP home: ${ZAP_HOME}"
+                        echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
                         
                         # 2. Force-clean previous instances
+                        echo "##[section] Cleaning previous ZAP instances..."
                         pkill -9 -f "zap.sh" || true
                         sleep 5
 
-                        # 3. Install required add-ons (correct names)
+                        # 3. Install required add-ons
+                        echo "##[section] Installing ZAP add-ons..."
                         /opt/zaproxy/zap.sh -cmd \
                             -addoninstall postman \
                             -addoninstall openapi \
                             -addonupdate -nostart
 
                         # 4. Start ZAP with proper configuration
+                        echo "##[section] Starting ZAP daemon..."
                         /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \
                             -dir "${ZAP_HOME}" \
                             -config api.disablekey=true \
                             -config database.recoverylog=false \
                             -J"-Xmx2048m" > "${ZAP_HOME}/zap.log" 2>&1 &
 
-                        # 5. Wait for startup with log monitoring
-                        echo "Waiting for ZAP to start..."
+                        # 5. Wait for startup with enhanced verification
+                        echo "##[section] Waiting for ZAP initialization..."
                         timeout 300 bash -c '
+                            attempt=0
                             until curl -s http://localhost:8090; do
                                 sleep 5
-                                echo "Checking ZAP API status..."
+                                attempt=$((attempt+1))
+                                echo "##[debug] Startup attempt ${attempt}/60"
+                                
+                                # Check for errors in logs
                                 if grep -q "ERROR\|Exception" "${ZAP_HOME}/zap.log"; then
-                                    echo "ZAP startup error detected"
+                                    echo "##[error] ZAP startup error detected"
+                                    echo "Last error lines:"
+                                    grep "ERROR\|Exception" "${ZAP_HOME}/zap.log" | tail -5
                                     exit 1
                                 fi
                             done'
 
-                        # 6. Verify API connection
-                         API_VERSION=$(curl -s http://localhost:8090/JSON/core/view/version)
-                        if [ -z "$API_VERSION" ]; then
-                            echo "ZAP API verification failed. Logs:"
+                        # 6. Verify API functionality
+                        echo "##[section] Verifying ZAP API..."
+                        API_VERSION=$(curl -s http://localhost:8090/JSON/core/view/version)
+                        if [ -z "${API_VERSION}" ]; then
+                            echo "##[error] ZAP API verification failed"
+                            echo "##[debug] Full logs:"
                             cat "${ZAP_HOME}/zap.log"
                             exit 1
                         fi
+                        echo "##[section] ZAP API version: ${API_VERSION}"
 
-
-                        # 7. Import Postman collection (correct endpoint)
-                        echo "Importing Postman collection..."
+                        # 7. Import Postman collection
+                        echo "##[section] Importing Postman collection..."
                         IMPORT_RESULT=$(curl -s -X POST "http://localhost:8090/JSON/postman/action/importFile/" \
                             -F "file=@postman-collection.json")
                         
                         if ! echo "${IMPORT_RESULT}" | grep -q '"Result":"OK"'; then
-                            echo "Postman import failed. Response: ${IMPORT_RESULT}"
+                            echo "##[error] Postman import failed"
+                            echo "##[debug] Response: ${IMPORT_RESULT}"
                             exit 1
                         fi
 
                         # 8. Run security scan
-                        echo "Starting security scan..."
+                        echo "##[section] Starting security scan..."
                         /opt/zaproxy/zap.sh -cmd \
                             -quickurl http://209.38.120.144 \
                             -quickprogress \
@@ -147,7 +159,7 @@ pipeline {
 
                         # 9. Verify report generation
                         if [ ! -f "${WORKSPACE}/zap-report.html" ]; then
-                            echo "Report file missing"
+                            echo "##[error] Report file missing"
                             exit 1
                         fi
                     '''
