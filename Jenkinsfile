@@ -86,31 +86,40 @@ pipeline {
             steps {
         script {
                       sh '''
-                      # 1. Install Firefox dependency
-                        sudo apt-get update
-                        sudo apt-get install -y firefox
-
-                        # 2. Configure Firefox path for ZAP
+                      # 1. Configure Firefox for ZAP
                         export MOZ_HEADLESS=1
-                        export PATH="/usr/lib/firefox:${PATH}"
+                        export FIREFOX_BIN="/usr/bin/firefox"
 
-                        # 3. Clean environment setup
-                        export ZAP_HOME=$(mktemp -d)
+                        # 2. Clean environment setup
+                        ZAP_HOME=$(mktemp -d)
                         echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
                         
-                        # 4. Force-clean previous instances
+                        # 3. Force-clean previous instances
                         echo "##[section] Cleaning previous ZAP instances..."
                         pkill -9 -f "zap.sh" || true
                         sleep 5
 
-                        # 5. Start ZAP with Firefox configuration
+                        # 4. Start ZAP with verified Firefox config
                         echo "##[section] Starting ZAP daemon..."
-                        /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \\
-                            -dir "${ZAP_HOME}" \\
-                            -config api.disablekey=true \\
-                            -config database.recoverylog=false \\
-                            -config client.firefox.path="/usr/lib/firefox/firefox" \\
+                        /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \
+                            -dir "${ZAP_HOME}" \
+                            -config api.disablekey=true \
+                            -config database.recoverylog=false \
+                            -config client.firefox.path="${FIREFOX_BIN}" \
                             -J"-Xmx2048m" > "${ZAP_HOME}/zap.log" 2>&1 &
+
+                        # 5. Wait for ZAP startup (improved verification)
+                        echo "##[section] Waiting for ZAP initialization..."
+                        timeout 120 bash -c '
+                            while ! curl -s http://localhost:8090 >/dev/null; do
+                                sleep 5
+                                echo "Checking ZAP status..."
+                                if grep -q "ERROR\\|Exception" "${ZAP_HOME}/zap.log"; then
+                                    echo "##[error] Startup errors detected:"
+                                    tail -20 "${ZAP_HOME}/zap.log"
+                                    exit 1
+                                fi
+                            done'
 
                         # 6. Verify API functionality
                         echo "##[section] Verifying ZAP API..."
