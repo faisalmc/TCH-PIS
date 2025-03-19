@@ -103,7 +103,7 @@ pipeline {
             curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
             curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
 
-            #API'S SECURITY SCAN:
+#API'S SECURITY SCAN:
 # For register endpoint with the correct request body
 curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" \
   -d 'request={
@@ -122,10 +122,11 @@ curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" \
     "body": "{\\"username\\": \\"testdocteoq21r\\",\\"password\\": \\"testpas21eswqored12\\"}"
   }'
 
-
+        # Also run the spider on the base URLs to discover more endpoints
+            curl "http://localhost:8090/JSON/spider/action/scan/?url=http://209.38.120.144:3000"
             
             # Wait for passive scanning to complete
-            sleep 30
+            sleep 90
             
             # Generate HTML report
             curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
