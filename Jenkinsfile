@@ -86,7 +86,7 @@ pipeline {
             steps {
         script {
                                      sh '''
-                        # 1. Clean environment setup
+                    # 1. Clean environment setup
                         ZAP_HOME=$(mktemp -d)
                         echo "##[section] Using temporary ZAP home: ${ZAP_HOME}"
                         
@@ -101,23 +101,32 @@ pipeline {
                             -addoninstall postman \\
                             -addonupdate -nostart
 
-                        # 4. Start ZAP
+                        # 4. Start ZAP with proper log path
                         echo "##[section] Starting ZAP daemon..."
+                        ZAP_LOG="${ZAP_HOME}/zap.log"
                         /opt/zaproxy/zap.sh -daemon -port 8090 -host 0.0.0.0 \\
                             -dir "${ZAP_HOME}" \\
                             -config api.disablekey=true \\
                             -config database.recoverylog=false \\
-                            -J"-Xmx2048m" > "${ZAP_HOME}/zap.log" 2>&1 &
+                            -J"-Xmx2048m" > "${ZAP_LOG}" 2>&1 &
 
-                        # 5. Wait for startup with proper escaping
+                        # 5. Wait for startup with proper log path
                         echo "##[section] Waiting for ZAP initialization..."
                         timeout 120 bash -c '
                             while ! curl -s http://localhost:8090 >/dev/null; do
                                 sleep 5
                                 echo "Checking ZAP status..."
-                                if grep -q "ERROR\\|Exception" "${ZAP_HOME}/zap.log"; then
+                                
+                                # Verify log file exists
+                                if [ ! -f "${ZAP_LOG}" ]; then
+                                    echo "##[error] ZAP log file missing at ${ZAP_LOG}"
+                                    exit 1
+                                fi
+                                
+                                # Check for errors
+                                if grep -q "ERROR\\|Exception" "${ZAP_LOG}"; then
                                     echo "##[error] Startup errors detected:"
-                                    tail -20 "${ZAP_HOME}/zap.log"
+                                    tail -20 "${ZAP_LOG}"
                                     exit 1
                                 fi
                             done'
