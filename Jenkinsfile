@@ -110,8 +110,9 @@ pipeline {
                             -config database.recoverylog=false \\
                             -J"-Xmx2048m" > "${ZAP_LOG}" 2>&1 &
 
-                        # 5. Wait for startup with proper log path
+                        # 5. Wait for startup with proper variable passing
                         echo "##[section] Waiting for ZAP initialization..."
+                        export ZAP_LOG  # Make available to subshell
                         timeout 120 bash -c '
                             while ! curl -s http://localhost:8090 >/dev/null; do
                                 sleep 5
@@ -130,6 +131,7 @@ pipeline {
                                     exit 1
                                 fi
                             done'
+
 
                         # 6. Import Postman collection
                         echo "##[section] Importing Postman collection..."
