@@ -115,7 +115,7 @@ curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" -H "Content-T
 curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000"
             
             # Wait for passive scanning to complete
-            sleep 90
+            sleep 180
             
             # Generate HTML report
             curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
