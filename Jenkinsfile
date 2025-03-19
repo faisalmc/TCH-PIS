@@ -104,9 +104,24 @@ pipeline {
             curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
 
             #API'S SECURITY SCAN:
-            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000/auth/register
-            curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000/auth/login
-            
+# For register endpoint with the correct request body
+curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" \
+  -d 'request={
+    "method": "POST",
+    "url": "http://209.38.120.144:3000/auth/register",
+    "headers": {"Content-Type": "application/json"},
+    "body": "{\\"username\\": \\"user_5pzl6x\\",\\"password\\": \\"^nOeCQOG2aC!\\",\\"role\\": \\"clerk\\"}"
+  }'
+
+# For login endpoint with the correct request body
+curl -X POST "http://localhost:8090/JSON/core/action/sendRequest/" \
+  -d 'request={
+    "method": "POST",
+    "url": "http://209.38.120.144:3000/auth/login",
+    "headers": {"Content-Type": "application/json"},
+    "body": "{\\"username\\": \\"testdocteoq21r\\",\\"password\\": \\"testpas21eswqored12\\"}"
+  }'
+
 
             
             # Wait for passive scanning to complete
