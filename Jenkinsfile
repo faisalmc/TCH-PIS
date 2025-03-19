@@ -15,7 +15,7 @@ pipeline {
                     fi
 
                     # Run the new container in detached mode
-                    docker run -d --name tch-pis-container \
+                    docker run -d --name tch-pis \
                     -p 3000:3000 -p 3001:3001 -p 3002:3002 \
                     tch-pis-image:1.0 tail -f /dev/null
                     '''
@@ -28,9 +28,9 @@ pipeline {
                 script {
                     // Clone the repo inside the running container and install dependencies
                     sh '''
-                    docker exec tch-pis-container git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm install"
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && npm run test"                    
+                    docker exec tch-pis git clone https://github.com/faisalmc/TCH-PIS.git /app/TCH-PIS
+                    docker exec tch-pis sh -c "cd /app/TCH-PIS && npm install"
+                    docker exec tch-pis sh -c "cd /app/TCH-PIS && npm run test"                    
                     '''
                 }
             }
@@ -83,7 +83,7 @@ pipeline {
                 script {
                     // Run start-all command inside the container
                     sh '''
-                    docker exec tch-pis-container sh -c "cd /app/TCH-PIS && nohup npm run start-all > services.log 2>&1 &"
+                    docker exec tch-pis sh -c "cd /app/TCH-PIS && nohup npm run start-all > services.log 2>&1 &"
                     '''
                 }
             }
