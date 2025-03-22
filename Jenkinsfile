@@ -1,8 +1,14 @@
 pipeline {
     agent any
 
+    environment {
+        AZURE_CLIENT_ID     = credentials('azure-client-id')
+        AZURE_CLIENT_SECRET = credentials('azure-client-secret')
+        AZURE_TENANT_ID     = credentials('azure-tenant-id')
+    }
+
+    /*
     stages {
-        /*
         stage('Launch Docker Container') {
             steps {
                 script {
@@ -109,11 +115,6 @@ pipeline {
             }
         }
         */
-    environment {
-        AZURE_CLIENT_ID     = credentials('azure-client-id')
-        AZURE_CLIENT_SECRET = credentials('azure-client-secret')
-        AZURE_TENANT_ID     = credentials('azure-tenant-id')
-    }
 
     stages {
         stage('Checkout') {
