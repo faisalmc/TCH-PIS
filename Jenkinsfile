@@ -109,35 +109,43 @@ pipeline {
             }
         }
         */
-        stage('Deploy to AKS') {
-            environment {
-                AZURE_CLIENT_ID     = credentials('azure-client-id')
-                AZURE_CLIENT_SECRET = credentials('azure-client-secret')
-                AZURE_TENANT_ID     = credentials('azure-tenant-id')
+    environment {
+        AZURE_CLIENT_ID     = credentials('azure-client-id')
+        AZURE_CLIENT_SECRET = credentials('azure-client-secret')
+        AZURE_TENANT_ID     = credentials('azure-tenant-id')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
             }
+        }
+        stage('Deploy to AKS') {
             steps {
                 script {
                     sh '''
-                    echo "Logging into Azure with Service Principal"
-                    az login --service-principal \
-                      --username "$AZURE_CLIENT_ID" \
-                      --password "$AZURE_CLIENT_SECRET" \
-                      --tenant "$AZURE_TENANT_ID"
+                        echo "Logging into Azure with Service Principal"
+                        az login --service-principal \
+                          --username "$AZURE_CLIENT_ID" \
+                          --password "$AZURE_CLIENT_SECRET" \
+                          --tenant "$AZURE_TENANT_ID"
 
-                    echo "Connecting to AKS Cluster"
-                    az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --overwrite-existing
+                        echo "Connecting to AKS Cluster"
+                        az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --overwrite-existing
 
-                    echo "Deploying Kubernetes YAMLs"
-                        # Use the workspace path to reference your YAML files
-                        kubectl apply -f ${WORKSPACE}/k8s/deployment.yaml
-                        kubectl apply -f ${WORKSPACE}/k8s/service.yaml
+                        echo "Deploying Kubernetes YAMLs"
+                        kubectl apply -f "${WORKSPACE}/k8s/deployment.yaml"
+                        kubectl apply -f "${WORKSPACE}/k8s/service.yaml"
 
-                    echo "Checking rollout status"
-                    kubectl rollout status deployment/tch-pis
+                        echo "Checking rollout status"
+                        kubectl rollout status deployment/tch-pis
                     '''
                 }
             }
         }
+
+
     }
     
     post {
