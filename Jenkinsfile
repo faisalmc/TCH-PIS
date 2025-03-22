@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+        /*
         stage('Launch Docker Container') {
             steps {
                 script {
@@ -107,7 +108,7 @@ pipeline {
                 }
             }
         }
-        
+        */
         stage('Deploy to AKS') {
             environment {
                 AZURE_CLIENT_ID     = credentials('azure-client-id')
@@ -127,8 +128,8 @@ pipeline {
                     az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --overwrite-existing
 
                     echo "🚀 Deploying Kubernetes YAMLs"
-                    kubectl apply -f k8s/deployment.yaml
-                    kubectl apply -f k8s/service.yaml
+                    kubectl apply -f ~/k8s/deployment.yaml
+                    kubectl apply -f ~/k8s/service.yaml
 
                     echo "📊 Checking rollout status"
                     kubectl rollout status deployment/tch-pis
