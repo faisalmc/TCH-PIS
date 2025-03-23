@@ -125,6 +125,10 @@ pipeline {
                     curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3000"
                     curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3001"
                     curl "http://localhost:8090/JSON/core/action/accessUrl/?url=http://209.38.120.144:3002"
+                    curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3000"
+                    curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3001"
+                    curl "http://localhost:8090/JSON/ascan/action/scan/?url=http://209.38.120.144:3002"
+
                     sleep 30
                     echo "Generating ZAP report..."
                     curl -s "http://localhost:8090/OTHER/core/other/htmlreport/" > zap-reports/zap-report.html
