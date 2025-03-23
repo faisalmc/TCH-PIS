@@ -145,7 +145,7 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker image with tag: ${DOCKER_IMAGE}"
-                    sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile.k8s ."
+                    sh "docker build -t ${DOCKER_IMAGE} -f ${WORKSPACE}/k8s/Dockerfile.k8s ."
                     echo "Pushing Docker image ${DOCKER_IMAGE} to Docker Hub"
                     sh "docker push ${DOCKER_IMAGE}"
                 }

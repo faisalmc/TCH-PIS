@@ -1,0 +1,17 @@
+# Use Node.js LTS as the base image
+FROM node:18-alpine
+
+# Set working directory inside the container
+WORKDIR /app
+
+# Clone the repository inside the Docker image
+RUN apk add --no-cache git \
+    && git clone https://github.com/faisalmc/TCH-PIS.git /app \
+    && cd /app \
+    && npm install
+
+# Expose required ports
+EXPOSE 3000 3001 3002
+
+# Run services
+CMD ["sh", "-c", "npm run start-all && tail -f /dev/null"]
