@@ -6,6 +6,11 @@ pipeline {
         AZURE_CLIENT_ID     = credentials('azure-client-id')
         AZURE_CLIENT_SECRET = credentials('azure-client-secret')
         AZURE_TENANT_ID     = credentials('azure-tenant-id')
+
+        // Tag for the new Docker image
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+        DOCKER_IMAGE = "faisalmch/tch-pis-k8s:${IMAGE_TAG}"
+
     }
 
     stages {
@@ -134,7 +139,19 @@ pipeline {
                 }
             }
         }
-        
+
+        // Build and push the new Docker image stage.
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    echo "Building Docker image with tag: ${DOCKER_IMAGE}"
+                    sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile.k8s ."
+                    echo "Pushing Docker image ${DOCKER_IMAGE} to Docker Hub"
+                    sh "docker push ${DOCKER_IMAGE}"
+                }
+            }
+        }
+
         // Stage: Deploy to AKS
         // logs into Azure using the Service Principal, sets the kubeconfig context, and deploys the k8s YAMLs
         stage('Deploy to AKS') {
@@ -143,9 +160,9 @@ pipeline {
                     sh '''
                         echo "Logging into Azure with Service Principal"
                         az login --service-principal \
-                        --username "$AZURE_CLIENT_ID" \
-                        --password "$AZURE_CLIENT_SECRET" \
-                        --tenant "$AZURE_TENANT_ID"
+                          --username "$AZURE_CLIENT_ID" \
+                          --password "$AZURE_CLIENT_SECRET" \
+                          --tenant "$AZURE_TENANT_ID"
 
                         echo "Connecting to AKS Cluster"
                         az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --overwrite-existing
@@ -154,12 +171,16 @@ pipeline {
                         kubectl apply -f "${WORKSPACE}/k8s/deployment.yaml"
                         kubectl apply -f "${WORKSPACE}/k8s/service.yaml"
 
+                        echo "Updating deployment with new image tag"
+                        kubectl set image deployment/tch-pis tch-pis-container=${DOCKER_IMAGE}
+
                         echo "Forcing new rollout with 'kubectl rollout restart deployment/tch-pis'"
                         kubectl rollout restart deployment/tch-pis
 
                         echo "Checking rollout status"
                         kubectl rollout status deployment/tch-pis
                     '''
+
                 }
             }
         }
