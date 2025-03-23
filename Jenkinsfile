@@ -170,7 +170,7 @@ pipeline {
                         echo "Logging into Postman..."
                         postman login --with-api-key $K8_API_KEY
                         echo "Running Postman collection tests..."
-                        postman collection run "41554359-e3265ee3-4210-401b-a0c3-5507a7ade9ff"
+                        postman collection run "41554359-cd025fe7-e271-41fb-9b3c-4dc1bc4a47a4"
                         '''
                     }
                 }
