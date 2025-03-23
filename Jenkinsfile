@@ -161,13 +161,8 @@ pipeline {
                 }
             }
         }
-    }
 
-
-    
-
-
-           stage('Postman - Sanity Check - K8') {
+    stage('Postman - Sanity Check - K8') {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'K8_API_KEY', variable: 'K8_API_KEY')]) {
@@ -181,6 +176,14 @@ pipeline {
                 }
             }
         }
+
+    }
+
+
+    
+
+
+       
     // Post actions run after the pipeline, regardless of success or failure.
     post {
         always {
