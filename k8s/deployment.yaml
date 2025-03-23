@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: tch-pis
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
   selector:
     matchLabels:
@@ -14,10 +16,9 @@ spec:
     spec:
       containers:
       - name: tch-pis-container
-        image: faisalmch/tch-pis-k8s:1.2  # Change to your Docker Hub username
+        image: faisalmch/tch-pis-k8s:1.2  # (or your updated tag)
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
         - containerPort: 3001
         - containerPort: 3002
-
