@@ -6,11 +6,6 @@ pipeline {
         AZURE_CLIENT_ID     = credentials('azure-client-id')
         AZURE_CLIENT_SECRET = credentials('azure-client-secret')
         AZURE_TENANT_ID     = credentials('azure-tenant-id')
-
-        // Tag for the new Docker image
-        IMAGE_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_IMAGE = "faisalmch/tch-pis-k8s:${IMAGE_TAG}"
-
     }
 
     stages {
@@ -101,7 +96,7 @@ pipeline {
         }
         
         // Stage: Postman Tests
-        stage('Postman Tests') {
+        stage('Postman API/Integration testing - Docker') {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'POSTMAN_API_KEY', variable: 'POSTMAN_API_KEY')]) {
@@ -139,62 +134,53 @@ pipeline {
                 }
             }
         }
-
-        // Build and push the new Docker image stage.
-        stage('Build and Push Docker Image') {
-            steps {
-                script {
-                    echo "Building Docker image with tag: ${DOCKER_IMAGE}"
-                    sh """
-                        export DOCKER_BUILDKIT=0
-                        docker build -t ${DOCKER_IMAGE} -f "${WORKSPACE}/k8s/Dockerfile.k8s" .
-                    """
-                    echo "Logging into Docker Hub"
-                    // Use Jenkins credentials to login to Docker Hub
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                        sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD'
-                    }
-                    echo "Pushing Docker image ${DOCKER_IMAGE} to Docker Hub"
-                    sh "docker push ${DOCKER_IMAGE}"
-                }
-            }
-        }
-
+        
         // Stage: Deploy to AKS
         // logs into Azure using the Service Principal, sets the kubeconfig context, and deploys the k8s YAMLs
         stage('Deploy to AKS') {
             steps {
                 script {
                     sh '''
-                        echo "Logging into Azure with Service Principal"
-                        az login --service-principal \
-                          --username "$AZURE_CLIENT_ID" \
-                          --password "$AZURE_CLIENT_SECRET" \
-                          --tenant "$AZURE_TENANT_ID"
+                    echo "Logging into Azure with Service Principal"
+                    az login --service-principal \
+                      --username "$AZURE_CLIENT_ID" \
+                      --password "$AZURE_CLIENT_SECRET" \
+                      --tenant "$AZURE_TENANT_ID"
 
-                        echo "Connecting to AKS Cluster"
-                        az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --overwrite-existing
+                    echo "Connecting to AKS Cluster"
+                    az aks get-credentials --resource-group myResourceGroup --name myAKSCluster --overwrite-existing
 
-                        echo "Deploying Kubernetes YAMLs"
-                        kubectl apply -f "${WORKSPACE}/k8s/deployment.yaml"
-                        kubectl apply -f "${WORKSPACE}/k8s/service.yaml"
+                    echo "Deploying Kubernetes YAMLs"
+                    # Use the workspace path to reference your YAML files pulled from GitHub
+                    kubectl apply -f "${WORKSPACE}/k8s/deployment.yaml"
+                    kubectl apply -f "${WORKSPACE}/k8s/service.yaml"
 
-                        echo "Updating deployment with new image tag"
-                        kubectl set image deployment/tch-pis tch-pis-container=${DOCKER_IMAGE}
-
-                        echo "Forcing new rollout with 'kubectl rollout restart deployment/tch-pis'"
-                        kubectl rollout restart deployment/tch-pis
-
-                        echo "Checking rollout status"
-                        kubectl rollout status deployment/tch-pis
+                    echo "Checking rollout status"
+                    kubectl rollout status deployment/tch-pis
                     '''
-
                 }
             }
         }
-
     }
+
+
     
+
+
+           stage('Postman - Sanity Check - K8') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'K8_API_KEY', variable: 'K8_API_KEY')]) {
+                        sh '''
+                        echo "Logging into Postman..."
+                        postman login --with-api-key $K8_API_KEY
+                        echo "Running Postman collection tests..."
+                        postman collection run "41554359-e3265ee3-4210-401b-a0c3-5507a7ade9ff"
+                        '''
+                    }
+                }
+            }
+        }
     // Post actions run after the pipeline, regardless of success or failure.
     post {
         always {
