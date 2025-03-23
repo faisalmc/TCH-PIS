@@ -149,6 +149,11 @@ pipeline {
                         export DOCKER_BUILDKIT=0
                         docker build -t ${DOCKER_IMAGE} -f "${WORKSPACE}/k8s/Dockerfile.k8s" .
                     """
+                    echo "Logging into Docker Hub"
+                    // Use Jenkins credentials to login to Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'docker-hub', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        sh 'docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD'
+                    }
                     echo "Pushing Docker image ${DOCKER_IMAGE} to Docker Hub"
                     sh "docker push ${DOCKER_IMAGE}"
                 }
