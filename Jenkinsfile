@@ -23,8 +23,8 @@ pipeline {
                     sh '''
                     echo "Stopping any existing container..."
                     if [ "$(docker ps -aq -f name=tch-pis-container)" ]; then
-                        docker stop tch-pis-container || true
-                        docker rm tch-pis-container || true
+                        docker stop tch-pis || true
+                        docker rm tch-pis || true
                     fi
 
                     echo "Launching new Docker container (for testing)..."
